@@ -1,0 +1,970 @@
+{
+  "version": "2.11",
+  "children": [
+    {
+      "id": "popup_map_main",
+      "type": "frame",
+      "name": "Popup Map - App Wireframe",
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 1024,
+      "layout": "vertical",
+      "fill": "#F7F8FA",
+      "padding": 32,
+      "gap": 24,
+      "children": [
+        {
+          "id": "main_header",
+          "type": "frame",
+          "name": "Header",
+          "width": "fill_container",
+          "height": 72,
+          "layout": "horizontal",
+          "fill": "#FFFFFF",
+          "cornerRadius": 8,
+          "padding": [16, 20],
+          "gap": 16,
+          "alignItems": "center",
+          "children": [
+            {
+              "id": "main_logo",
+              "type": "text",
+              "content": "Popup Map",
+              "fontSize": 24,
+              "fontWeight": "700",
+              "fill": "#111827"
+            },
+            {
+              "id": "main_search",
+              "type": "frame",
+              "name": "Search",
+              "width": "fill_container",
+              "height": 44,
+              "layout": "horizontal",
+              "fill": "#F3F4F6",
+              "cornerRadius": 8,
+              "padding": [10, 14],
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "search_hint",
+                  "type": "text",
+                  "content": "지역, 브랜드, 팝업명 검색",
+                  "fontSize": 14,
+                  "fill": "#6B7280"
+                }
+              ]
+            },
+            {
+              "id": "admin_button",
+              "type": "frame",
+              "name": "Admin Button",
+              "width": "fit_content",
+              "height": 44,
+              "layout": "horizontal",
+              "fill": "#111827",
+              "cornerRadius": 8,
+              "padding": [10, 16],
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "admin_button_text",
+                  "type": "text",
+                  "content": "관리자",
+                  "fontSize": 14,
+                  "fontWeight": "600",
+                  "fill": "#FFFFFF"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "main_layout",
+          "type": "frame",
+          "name": "Main Layout",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "horizontal",
+          "gap": 24,
+          "children": [
+            {
+              "id": "list_panel",
+              "type": "frame",
+              "name": "List Panel",
+              "width": 420,
+              "height": "fill_container",
+              "layout": "vertical",
+              "fill": "#FFFFFF",
+              "cornerRadius": 8,
+              "padding": 20,
+              "gap": 16,
+              "children": [
+                {
+                  "id": "list_title",
+                  "type": "text",
+                  "content": "오늘 갈 수 있는 팝업",
+                  "fontSize": 22,
+                  "fontWeight": "700",
+                  "fill": "#111827"
+                },
+                {
+                  "id": "list_subtitle",
+                  "type": "text",
+                  "content": "성수, 홍대, 강남 중심의 진행 중인 팝업스토어",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "fontSize": 13,
+                  "fill": "#6B7280"
+                },
+                {
+                  "id": "filter_group",
+                  "type": "frame",
+                  "name": "Filters",
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "filter_row_1",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "layout": "horizontal",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "id": "filter_today",
+                          "type": "frame",
+                          "width": "fit_content",
+                          "height": 36,
+                          "layout": "horizontal",
+                          "fill": "#111827",
+                          "cornerRadius": 8,
+                          "padding": [8, 12],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "id": "filter_today_text",
+                              "type": "text",
+                              "content": "오늘 운영",
+                              "fontSize": 13,
+                              "fontWeight": "600",
+                              "fill": "#FFFFFF"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "filter_no_reservation",
+                          "type": "frame",
+                          "width": "fit_content",
+                          "height": 36,
+                          "layout": "horizontal",
+                          "fill": "#F3F4F6",
+                          "cornerRadius": 8,
+                          "padding": [8, 12],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "id": "filter_no_reservation_text",
+                              "type": "text",
+                              "content": "예약 없음",
+                              "fontSize": 13,
+                              "fontWeight": "600",
+                              "fill": "#374151"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "filter_free",
+                          "type": "frame",
+                          "width": "fit_content",
+                          "height": 36,
+                          "layout": "horizontal",
+                          "fill": "#F3F4F6",
+                          "cornerRadius": 8,
+                          "padding": [8, 12],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "id": "filter_free_text",
+                              "type": "text",
+                              "content": "무료",
+                              "fontSize": 13,
+                              "fontWeight": "600",
+                              "fill": "#374151"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "filter_row_2",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "layout": "horizontal",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "id": "filter_seongsu",
+                          "type": "frame",
+                          "width": "fit_content",
+                          "height": 36,
+                          "layout": "horizontal",
+                          "fill": "#ECFDF5",
+                          "cornerRadius": 8,
+                          "padding": [8, 12],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "id": "filter_seongsu_text",
+                              "type": "text",
+                              "content": "성수",
+                              "fontSize": 13,
+                              "fontWeight": "600",
+                              "fill": "#047857"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "filter_beauty",
+                          "type": "frame",
+                          "width": "fit_content",
+                          "height": 36,
+                          "layout": "horizontal",
+                          "fill": "#F3F4F6",
+                          "cornerRadius": 8,
+                          "padding": [8, 12],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "id": "filter_beauty_text",
+                              "type": "text",
+                              "content": "뷰티",
+                              "fontSize": 13,
+                              "fontWeight": "600",
+                              "fill": "#374151"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "filter_character",
+                          "type": "frame",
+                          "width": "fit_content",
+                          "height": 36,
+                          "layout": "horizontal",
+                          "fill": "#F3F4F6",
+                          "cornerRadius": 8,
+                          "padding": [8, 12],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "id": "filter_character_text",
+                              "type": "text",
+                              "content": "캐릭터",
+                              "fontSize": 13,
+                              "fontWeight": "600",
+                              "fill": "#374151"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "popup_cards",
+                  "type": "frame",
+                  "name": "Popup Cards",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "layout": "vertical",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "id": "popup_card_1",
+                      "type": "frame",
+                      "name": "Popup Card Active",
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "layout": "horizontal",
+                      "fill": "#F9FAFB",
+                      "stroke": { "thickness": 1, "fill": "#111827" },
+                      "cornerRadius": 8,
+                      "padding": 12,
+                      "gap": 12,
+                      "children": [
+                        {
+                          "id": "popup_thumb_1",
+                          "type": "frame",
+                          "width": 84,
+                          "height": 84,
+                          "fill": "#FDE68A",
+                          "cornerRadius": 6
+                        },
+                        {
+                          "id": "popup_card_body_1",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "height": "fit_content",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "id": "popup_card_tag_1",
+                              "type": "text",
+                              "content": "패션 · 성수",
+                              "fontSize": 12,
+                              "fontWeight": "600",
+                              "fill": "#047857"
+                            },
+                            {
+                              "id": "popup_card_title_1",
+                              "type": "text",
+                              "content": "Ader Archive Popup",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "fontSize": 16,
+                              "fontWeight": "700",
+                              "fill": "#111827"
+                            },
+                            {
+                              "id": "popup_card_meta_1",
+                              "type": "text",
+                              "content": "4.20 - 5.12 · 예약 없이 입장",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "fontSize": 12,
+                              "fill": "#6B7280"
+                            },
+                            {
+                              "id": "popup_card_distance_1",
+                              "type": "text",
+                              "content": "성수역 도보 7분",
+                              "fontSize": 12,
+                              "fontWeight": "600",
+                              "fill": "#374151"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "popup_card_2",
+                      "type": "frame",
+                      "name": "Popup Card",
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "layout": "horizontal",
+                      "fill": "#FFFFFF",
+                      "stroke": { "thickness": 1, "fill": "#E5E7EB" },
+                      "cornerRadius": 8,
+                      "padding": 12,
+                      "gap": 12,
+                      "children": [
+                        {
+                          "id": "popup_thumb_2",
+                          "type": "frame",
+                          "width": 84,
+                          "height": 84,
+                          "fill": "#BFDBFE",
+                          "cornerRadius": 6
+                        },
+                        {
+                          "id": "popup_card_body_2",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "height": "fit_content",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "id": "popup_card_tag_2",
+                              "type": "text",
+                              "content": "뷰티 · 강남",
+                              "fontSize": 12,
+                              "fontWeight": "600",
+                              "fill": "#2563EB"
+                            },
+                            {
+                              "id": "popup_card_title_2",
+                              "type": "text",
+                              "content": "Glow Lab Experience",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "fontSize": 16,
+                              "fontWeight": "700",
+                              "fill": "#111827"
+                            },
+                            {
+                              "id": "popup_card_meta_2",
+                              "type": "text",
+                              "content": "4.24 - 5.02 · 사전 예약",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "fontSize": 12,
+                              "fill": "#6B7280"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "map_area",
+              "type": "frame",
+              "name": "Map Area",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "none",
+              "fill": "#E5E7EB",
+              "cornerRadius": 8,
+              "clip": true,
+              "children": [
+                {
+                  "id": "map_road_horizontal",
+                  "type": "frame",
+                  "name": "Road Horizontal",
+                  "x": 70,
+                  "y": 310,
+                  "width": 760,
+                  "height": 42,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 20,
+                  "opacity": 0.9
+                },
+                {
+                  "id": "map_road_vertical",
+                  "type": "frame",
+                  "name": "Road Vertical",
+                  "x": 420,
+                  "y": 80,
+                  "width": 44,
+                  "height": 760,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 22,
+                  "opacity": 0.9
+                },
+                {
+                  "id": "marker_selected",
+                  "type": "frame",
+                  "name": "Selected Marker",
+                  "x": 372,
+                  "y": 254,
+                  "width": 42,
+                  "height": 42,
+                  "layout": "vertical",
+                  "fill": "#111827",
+                  "cornerRadius": 21,
+                  "alignItems": "center",
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "id": "marker_selected_text",
+                      "type": "text",
+                      "content": "1",
+                      "fontSize": 16,
+                      "fontWeight": "700",
+                      "fill": "#FFFFFF"
+                    }
+                  ]
+                },
+                {
+                  "id": "marker_2",
+                  "type": "frame",
+                  "name": "Marker",
+                  "x": 572,
+                  "y": 378,
+                  "width": 36,
+                  "height": 36,
+                  "layout": "vertical",
+                  "fill": "#047857",
+                  "cornerRadius": 18,
+                  "alignItems": "center",
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "id": "marker_2_text",
+                      "type": "text",
+                      "content": "2",
+                      "fontSize": 14,
+                      "fontWeight": "700",
+                      "fill": "#FFFFFF"
+                    }
+                  ]
+                },
+                {
+                  "id": "selected_detail",
+                  "type": "frame",
+                  "name": "Selected Popup Detail",
+                  "x": 600,
+                  "y": 500,
+                  "width": 280,
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 8,
+                  "padding": 16,
+                  "gap": 12,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "offset": { "x": 0, "y": 8 },
+                    "blur": 24,
+                    "color": "#00000022"
+                  },
+                  "children": [
+                    {
+                      "id": "detail_image",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "height": 132,
+                      "fill": "#FDE68A",
+                      "cornerRadius": 6
+                    },
+                    {
+                      "id": "detail_tag",
+                      "type": "text",
+                      "content": "패션 · 성수",
+                      "fontSize": 12,
+                      "fontWeight": "700",
+                      "fill": "#047857"
+                    },
+                    {
+                      "id": "detail_title",
+                      "type": "text",
+                      "content": "Ader Archive Popup",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "fontSize": 18,
+                      "fontWeight": "700",
+                      "fill": "#111827"
+                    },
+                    {
+                      "id": "detail_desc",
+                      "type": "text",
+                      "content": "아카이브 제품과 한정 굿즈를 경험할 수 있는 브랜드 팝업",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "fontSize": 13,
+                      "lineHeight": 1.35,
+                      "fill": "#4B5563"
+                    },
+                    {
+                      "id": "detail_button",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "height": 42,
+                      "layout": "horizontal",
+                      "fill": "#111827",
+                      "cornerRadius": 8,
+                      "alignItems": "center",
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "id": "detail_button_text",
+                          "type": "text",
+                          "content": "상세 보기",
+                          "fontSize": 14,
+                          "fontWeight": "700",
+                          "fill": "#FFFFFF"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "admin_popup_form",
+      "type": "frame",
+      "name": "Admin - Popup Form",
+      "x": 1520,
+      "y": 0,
+      "width": 960,
+      "height": 1024,
+      "layout": "vertical",
+      "fill": "#F7F8FA",
+      "padding": 32,
+      "gap": 24,
+      "children": [
+        {
+          "id": "admin_header",
+          "type": "frame",
+          "name": "Admin Header",
+          "width": "fill_container",
+          "height": 72,
+          "layout": "horizontal",
+          "fill": "#FFFFFF",
+          "cornerRadius": 8,
+          "padding": [16, 20],
+          "gap": 16,
+          "alignItems": "center",
+          "children": [
+            {
+              "id": "admin_title",
+              "type": "text",
+              "content": "팝업 등록 관리",
+              "fontSize": 24,
+              "fontWeight": "700",
+              "fill": "#111827"
+            },
+            {
+              "id": "admin_api_badge",
+              "type": "frame",
+              "width": "fit_content",
+              "height": 36,
+              "layout": "horizontal",
+              "fill": "#ECFDF5",
+              "cornerRadius": 8,
+              "padding": [8, 12],
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "admin_api_badge_text",
+                  "type": "text",
+                  "content": "Spring Boot API",
+                  "fontSize": 13,
+                  "fontWeight": "700",
+                  "fill": "#047857"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "admin_form_layout",
+          "type": "frame",
+          "name": "Form Layout",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "horizontal",
+          "gap": 24,
+          "children": [
+            {
+              "id": "admin_form",
+              "type": "frame",
+              "name": "Popup Form",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "fill": "#FFFFFF",
+              "cornerRadius": 8,
+              "padding": 24,
+              "gap": 16,
+              "children": [
+                {
+                  "id": "admin_form_title",
+                  "type": "text",
+                  "content": "기본 정보",
+                  "fontSize": 18,
+                  "fontWeight": "700",
+                  "fill": "#111827"
+                },
+                {
+                  "id": "field_popup_name",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "id": "field_popup_name_label",
+                      "type": "text",
+                      "content": "팝업명",
+                      "fontSize": 13,
+                      "fontWeight": "700",
+                      "fill": "#374151"
+                    },
+                    {
+                      "id": "field_popup_name_input",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "height": 44,
+                      "layout": "horizontal",
+                      "fill": "#F9FAFB",
+                      "stroke": { "thickness": 1, "fill": "#E5E7EB" },
+                      "cornerRadius": 8,
+                      "padding": [10, 12],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "id": "field_popup_name_value",
+                          "type": "text",
+                          "content": "Ader Archive Popup",
+                          "fontSize": 14,
+                          "fill": "#111827"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "field_address",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "id": "field_address_label",
+                      "type": "text",
+                      "content": "주소",
+                      "fontSize": 13,
+                      "fontWeight": "700",
+                      "fill": "#374151"
+                    },
+                    {
+                      "id": "field_address_input",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "height": 44,
+                      "layout": "horizontal",
+                      "fill": "#F9FAFB",
+                      "stroke": { "thickness": 1, "fill": "#E5E7EB" },
+                      "cornerRadius": 8,
+                      "padding": [10, 12],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "id": "field_address_value",
+                          "type": "text",
+                          "content": "서울 성동구 연무장길 00",
+                          "fontSize": 14,
+                          "fill": "#111827"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "field_date_row",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "layout": "horizontal",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "id": "field_start_date",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "id": "field_start_date_label",
+                          "type": "text",
+                          "content": "시작일",
+                          "fontSize": 13,
+                          "fontWeight": "700",
+                          "fill": "#374151"
+                        },
+                        {
+                          "id": "field_start_date_input",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "height": 44,
+                          "layout": "horizontal",
+                          "fill": "#F9FAFB",
+                          "stroke": { "thickness": 1, "fill": "#E5E7EB" },
+                          "cornerRadius": 8,
+                          "padding": [10, 12],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "id": "field_start_date_value",
+                              "type": "text",
+                              "content": "2026-04-20",
+                              "fontSize": 14,
+                              "fill": "#111827"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "field_end_date",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "id": "field_end_date_label",
+                          "type": "text",
+                          "content": "종료일",
+                          "fontSize": 13,
+                          "fontWeight": "700",
+                          "fill": "#374151"
+                        },
+                        {
+                          "id": "field_end_date_input",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "height": 44,
+                          "layout": "horizontal",
+                          "fill": "#F9FAFB",
+                          "stroke": { "thickness": 1, "fill": "#E5E7EB" },
+                          "cornerRadius": 8,
+                          "padding": [10, 12],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "id": "field_end_date_value",
+                              "type": "text",
+                              "content": "2026-05-12",
+                              "fontSize": 14,
+                              "fill": "#111827"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "field_flags",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "layout": "horizontal",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "id": "flag_free",
+                      "type": "frame",
+                      "width": "fit_content",
+                      "height": 36,
+                      "layout": "horizontal",
+                      "fill": "#ECFDF5",
+                      "cornerRadius": 8,
+                      "padding": [8, 12],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "id": "flag_free_text",
+                          "type": "text",
+                          "content": "무료 입장",
+                          "fontSize": 13,
+                          "fontWeight": "600",
+                          "fill": "#047857"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "flag_reservation",
+                      "type": "frame",
+                      "width": "fit_content",
+                      "height": 36,
+                      "layout": "horizontal",
+                      "fill": "#F3F4F6",
+                      "cornerRadius": 8,
+                      "padding": [8, 12],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "id": "flag_reservation_text",
+                          "type": "text",
+                          "content": "예약 필요",
+                          "fontSize": 13,
+                          "fontWeight": "600",
+                          "fill": "#374151"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "save_button",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": 48,
+                  "layout": "horizontal",
+                  "fill": "#111827",
+                  "cornerRadius": 8,
+                  "alignItems": "center",
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "id": "save_button_text",
+                      "type": "text",
+                      "content": "팝업 저장",
+                      "fontSize": 15,
+                      "fontWeight": "700",
+                      "fill": "#FFFFFF"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "admin_preview",
+              "type": "frame",
+              "name": "User Preview",
+              "width": 320,
+              "height": "fill_container",
+              "layout": "vertical",
+              "fill": "#FFFFFF",
+              "cornerRadius": 8,
+              "padding": 20,
+              "gap": 16,
+              "children": [
+                {
+                  "id": "admin_preview_title",
+                  "type": "text",
+                  "content": "사용자 화면 미리보기",
+                  "fontSize": 18,
+                  "fontWeight": "700",
+                  "fill": "#111827"
+                },
+                {
+                  "id": "admin_preview_image",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": 180,
+                  "fill": "#FDE68A",
+                  "cornerRadius": 8
+                },
+                {
+                  "id": "admin_preview_name",
+                  "type": "text",
+                  "content": "Ader Archive Popup",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "fontSize": 18,
+                  "fontWeight": "700",
+                  "fill": "#111827"
+                },
+                {
+                  "id": "admin_preview_meta",
+                  "type": "text",
+                  "content": "성수 · 패션 · 4.20 - 5.12",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "fontSize": 13,
+                  "fill": "#6B7280"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

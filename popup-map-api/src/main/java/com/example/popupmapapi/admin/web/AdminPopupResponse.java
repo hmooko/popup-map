@@ -1,0 +1,58 @@
+package com.example.popupmapapi.admin.web;
+
+import com.example.popupmapapi.popup.domain.Category;
+import com.example.popupmapapi.popup.domain.Popup;
+import com.example.popupmapapi.popup.domain.Region;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+public record AdminPopupResponse(
+        Long id,
+        String title,
+        String brandName,
+        String description,
+        Category category,
+        Region region,
+        String address,
+        BigDecimal latitude,
+        BigDecimal longitude,
+        LocalDate startDate,
+        LocalDate endDate,
+        String openingHours,
+        boolean reservationRequired,
+        boolean freeAdmission,
+        Integer entryFee,
+        String officialUrl,
+        String reservationUrl,
+        String thumbnailUrl,
+        boolean visible,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
+) {
+    public static AdminPopupResponse from(Popup popup) {
+        return new AdminPopupResponse(
+                popup.getId(),
+                popup.getTitle(),
+                popup.getBrandName(),
+                popup.getDescription(),
+                popup.getCategory(),
+                popup.getRegion(),
+                popup.getAddress(),
+                popup.getLatitude(),
+                popup.getLongitude(),
+                popup.getStartDate(),
+                popup.getEndDate(),
+                popup.getOpeningHours(),
+                popup.isReservationRequired(),
+                popup.isFreeAdmission(),
+                popup.getEntryFee(),
+                popup.getOfficialUrl(),
+                popup.getReservationUrl(),
+                popup.getThumbnailUrl(),
+                popup.isVisible(),
+                popup.getCreatedAt(),
+                popup.getUpdatedAt()
+        );
+    }
+}
