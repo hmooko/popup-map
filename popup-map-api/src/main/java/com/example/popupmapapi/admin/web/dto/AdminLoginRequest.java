@@ -1,4 +1,4 @@
-package com.example.popupmapapi.admin.web;
+package com.example.popupmapapi.admin.web.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

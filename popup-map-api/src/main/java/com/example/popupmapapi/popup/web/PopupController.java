@@ -1,9 +1,14 @@
 package com.example.popupmapapi.popup.web;
 
-import com.example.popupmapapi.popup.application.PopupService;
 import com.example.popupmapapi.popup.domain.Category;
 import com.example.popupmapapi.popup.domain.PopupStatus;
 import com.example.popupmapapi.popup.domain.Region;
+import com.example.popupmapapi.popup.service.PopupService;
+import com.example.popupmapapi.popup.web.dto.NearbyPopupResponse;
+import com.example.popupmapapi.popup.web.dto.PageResponse;
+import com.example.popupmapapi.popup.web.dto.PopupDetailResponse;
+import com.example.popupmapapi.popup.web.dto.PopupListItemResponse;
+import com.example.popupmapapi.popup.web.dto.PopupMapItemResponse;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;

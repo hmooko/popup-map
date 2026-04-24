@@ -1,4 +1,4 @@
-package com.example.popupmapapi.admin.web;
+package com.example.popupmapapi.admin.web.dto;
 
 import com.example.popupmapapi.popup.domain.Category;
 import com.example.popupmapapi.popup.domain.Popup;

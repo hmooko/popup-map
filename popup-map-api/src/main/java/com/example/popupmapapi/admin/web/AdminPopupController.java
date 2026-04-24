@@ -1,6 +1,12 @@
 package com.example.popupmapapi.admin.web;
 
-import com.example.popupmapapi.popup.application.PopupService;
+import com.example.popupmapapi.admin.web.dto.AdminPopupResponse;
+import com.example.popupmapapi.admin.web.dto.PopupCreateRequest;
+import com.example.popupmapapi.admin.web.dto.PopupUpdateRequest;
+import com.example.popupmapapi.admin.web.dto.PopupVisibilityRequest;
+import com.example.popupmapapi.admin.web.dto.PopupVisibilityResponse;
+import com.example.popupmapapi.popup.service.PopupService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

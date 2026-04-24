@@ -1,4 +1,4 @@
-package com.example.popupmapapi.admin.web;
+package com.example.popupmapapi.admin.web.dto;
 
 public record AdminLoginResponse(
         String accessToken,

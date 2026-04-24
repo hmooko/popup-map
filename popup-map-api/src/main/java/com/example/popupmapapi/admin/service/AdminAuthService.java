@@ -1,10 +1,10 @@
-package com.example.popupmapapi.admin.application;
+package com.example.popupmapapi.admin.service;
 
+import com.example.popupmapapi.admin.web.dto.AdminLoginRequest;
+import com.example.popupmapapi.admin.web.dto.AdminLoginResponse;
 import com.example.popupmapapi.common.error.BusinessException;
 import com.example.popupmapapi.common.error.ErrorCode;
 import com.example.popupmapapi.admin.security.AdminSecurityProperties;
-import com.example.popupmapapi.admin.web.AdminLoginRequest;
-import com.example.popupmapapi.admin.web.AdminLoginResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

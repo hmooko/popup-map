@@ -1,6 +1,8 @@
 package com.example.popupmapapi.admin.web;
 
-import com.example.popupmapapi.admin.application.AdminAuthService;
+import com.example.popupmapapi.admin.service.AdminAuthService;
+import com.example.popupmapapi.admin.web.dto.AdminLoginRequest;
+import com.example.popupmapapi.admin.web.dto.AdminLoginResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;

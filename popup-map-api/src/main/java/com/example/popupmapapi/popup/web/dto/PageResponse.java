@@ -1,4 +1,4 @@
-package com.example.popupmapapi.popup.web;
+package com.example.popupmapapi.popup.web.dto;
 
 import java.util.List;
 import org.springframework.data.domain.Page;
