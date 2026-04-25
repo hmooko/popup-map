@@ -20,7 +20,7 @@ public class AdminTokenAuthenticationFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
-    private final AdminSecurityProperties properties;
+    private final AdminJwtTokenProvider adminJwtTokenProvider;
 
     @Override
     protected void doFilterInternal(
@@ -31,9 +31,9 @@ public class AdminTokenAuthenticationFilter extends OncePerRequestFilter {
         String authorization = request.getHeader(AUTHORIZATION);
         if (authorization != null && authorization.startsWith(BEARER_PREFIX)) {
             String token = authorization.substring(BEARER_PREFIX.length());
-            if (properties.token().equals(token)) {
+            if (adminJwtTokenProvider.isValidAdminToken(token)) {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        properties.email(),
+                        "admin",
                         null,
                         List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
                 );

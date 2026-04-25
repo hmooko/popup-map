@@ -28,8 +28,8 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
               and (:endDate is null or p.startDate <= :endDate)
               and (
                     :status is null
-                    or (:status = 'OPEN_TODAY' and p.startDate <= :today and p.endDate >= :today)
-                    or (:status = 'OPEN_WEEKEND' and p.startDate <= :weekendEnd and p.endDate >= :weekendStart)
+                    or (:status = 'ONGOING' and p.startDate <= :today and p.endDate >= :today)
+                    or (:status = 'UPCOMING' and p.startDate > :today)
                     or (:status = 'CLOSING_SOON' and p.endDate between :today and :closingSoonDate)
               )
             order by
@@ -46,8 +46,6 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("today") LocalDate today,
-            @Param("weekendStart") LocalDate weekendStart,
-            @Param("weekendEnd") LocalDate weekendEnd,
             @Param("closingSoonDate") LocalDate closingSoonDate,
             Pageable pageable
     );

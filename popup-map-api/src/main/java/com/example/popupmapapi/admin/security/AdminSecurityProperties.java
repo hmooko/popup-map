@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record AdminSecurityProperties(
         String email,
         String password,
-        String token,
+        String jwtSecret,
         long expiresIn
 ) {
 }

@@ -17,9 +17,7 @@ import com.example.popupmapapi.popup.web.dto.PopupDetailResponse;
 import com.example.popupmapapi.popup.web.dto.PopupListItemResponse;
 import com.example.popupmapapi.popup.web.dto.PopupMapItemResponse;
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -49,8 +47,6 @@ public class PopupService {
     ) {
         validateDateRange(startDate, endDate);
         LocalDate today = LocalDate.now();
-        LocalDate weekendStart = nextOrSameSaturday(today);
-        LocalDate weekendEnd = weekendStart.plusDays(1);
         Pageable pageable = PageRequest.of(page, size);
         return PageResponse.from(popupRepository.searchPublicPopups(
                 region,
@@ -61,8 +57,6 @@ public class PopupService {
                 startDate,
                 endDate,
                 today,
-                weekendStart,
-                weekendEnd,
                 today.plusDays(CLOSING_SOON_DAYS),
                 pageable
         ).map(PopupListItemResponse::from));
@@ -210,10 +204,6 @@ public class PopupService {
             return null;
         }
         return entryFee;
-    }
-
-    private LocalDate nextOrSameSaturday(LocalDate today) {
-        return today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
     }
 
     private String blankToNull(String value) {

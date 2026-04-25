@@ -1,10 +1,11 @@
 package com.example.popupmapapi.admin.service;
 
+import com.example.popupmapapi.admin.security.AdminJwtTokenProvider;
+import com.example.popupmapapi.admin.security.AdminSecurityProperties;
 import com.example.popupmapapi.admin.web.dto.AdminLoginRequest;
 import com.example.popupmapapi.admin.web.dto.AdminLoginResponse;
 import com.example.popupmapapi.common.error.BusinessException;
 import com.example.popupmapapi.common.error.ErrorCode;
-import com.example.popupmapapi.admin.security.AdminSecurityProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +14,12 @@ import org.springframework.stereotype.Service;
 public class AdminAuthService {
 
     private final AdminSecurityProperties properties;
+    private final AdminJwtTokenProvider adminJwtTokenProvider;
 
     public AdminLoginResponse login(AdminLoginRequest request) {
         if (!properties.email().equals(request.email()) || !properties.password().equals(request.password())) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다.");
         }
-        return new AdminLoginResponse(properties.token(), "Bearer", properties.expiresIn());
+        return new AdminLoginResponse(adminJwtTokenProvider.createToken(), "Bearer", properties.expiresIn());
     }
 }

@@ -141,8 +141,8 @@ Authorization: Bearer {accessToken}
 
 | 값 | 설명 |
 | --- | --- |
-| `OPEN_TODAY` | 오늘 운영 중 |
-| `OPEN_WEEKEND` | 이번 주말 운영 |
+| `ONGOING` | 운영 중 |
+| `UPCOMING` | 운영 전 |
 | `CLOSING_SOON` | 종료 임박 |
 
 ### AdminRole
