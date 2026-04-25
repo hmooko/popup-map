@@ -1,0 +1,142 @@
+name: Java CI/CD with Docker
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-api
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: popup-map-api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Test
+        run: ./gradlew test
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./popup-map-api
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/popup-map-api:main
+          platforms: linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to OCI
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.OCI_HOST }}
+          username: ${{ secrets.OCI_USERNAME }}
+          key: ${{ secrets.OCI_KEY }}
+          port: 22
+          script: |
+            set -e
+
+            IMAGE=${{ secrets.DOCKER_USERNAME }}/popup-map-api:main
+            APP_DIR="${{ secrets.APP_DIR }}"
+            APP_DIR=${APP_DIR:-/home/${{ secrets.OCI_USERNAME }}/popup-map}
+            ENV_FILE="$APP_DIR/.env"
+            NETWORK_NAME=popup-map
+            DB_CONTAINER=popup-map-db
+            API_CONTAINER=popup-map-api
+
+            mkdir -p "$APP_DIR"
+
+            if [ ! -f "$ENV_FILE" ]; then
+              echo ".env file not found: $ENV_FILE"
+              echo "Create it on the server before deploying."
+              exit 1
+            fi
+
+            read_env() {
+              grep -E "^$1=" "$ENV_FILE" | tail -n 1 | cut -d '=' -f 2- | tr -d '\r' || true
+            }
+
+            POSTGRES_DB=$(read_env POSTGRES_DB)
+            POSTGRES_USER=$(read_env POSTGRES_USER)
+            POSTGRES_PASSWORD=$(read_env POSTGRES_PASSWORD)
+            API_PORT=$(read_env API_PORT)
+            API_JAVA_OPTS=$(read_env API_JAVA_OPTS)
+
+            POSTGRES_DB=${POSTGRES_DB:-popup_map}
+            POSTGRES_USER=${POSTGRES_USER:-popup_map}
+            API_PORT=${API_PORT:-8080}
+            API_JAVA_OPTS=${API_JAVA_OPTS:--Xms256m -Xmx768m}
+
+            if [ -z "$POSTGRES_PASSWORD" ]; then
+              echo "POSTGRES_PASSWORD is required in $ENV_FILE"
+              exit 1
+            fi
+
+            echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login \
+              --username "${{ secrets.DOCKER_USERNAME }}" \
+              --password-stdin
+
+            sudo docker network create "$NETWORK_NAME" || true
+            sudo docker volume create popup-map-postgres-data || true
+
+            if ! sudo docker ps -a --format '{{.Names}}' | grep -qx "$DB_CONTAINER"; then
+              sudo docker run -d \
+                --name "$DB_CONTAINER" \
+                --network "$NETWORK_NAME" \
+                --env-file "$ENV_FILE" \
+                -e TZ=Asia/Seoul \
+                -v popup-map-postgres-data:/var/lib/postgresql/data \
+                --restart unless-stopped \
+                postgis/postgis:16-3.5
+            else
+              sudo docker start "$DB_CONTAINER"
+            fi
+
+            sudo docker pull "$IMAGE"
+
+            sudo docker stop "$API_CONTAINER" || true
+            sudo docker rm "$API_CONTAINER" || true
+
+            sudo docker run -d \
+              --name "$API_CONTAINER" \
+              --network "$NETWORK_NAME" \
+              -p "$API_PORT:8080" \
+              --env-file "$ENV_FILE" \
+              -e DB_URL="jdbc:postgresql://$DB_CONTAINER:5432/$POSTGRES_DB" \
+              -e DB_USERNAME="$POSTGRES_USER" \
+              -e DB_PASSWORD="$POSTGRES_PASSWORD" \
+              -e JAVA_OPTS="$API_JAVA_OPTS" \
+              -e TZ=Asia/Seoul \
+              --restart unless-stopped \
+              "$IMAGE"
+
+            sudo docker image prune -f

@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgis/postgis:16-3.5
+    container_name: popup-map-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-popup_map}
+      POSTGRES_USER: ${POSTGRES_USER:-popup_map}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: Asia/Seoul
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - popup-map
+
+  api:
+    build:
+      context: ./popup-map-api
+    container_name: popup-map-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-popup_map}
+      DB_USERNAME: ${POSTGRES_USER:-popup_map}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      ADMIN_TOKEN_EXPIRES_IN: ${ADMIN_TOKEN_EXPIRES_IN:-3600}
+      JAVA_OPTS: ${API_JAVA_OPTS:--Xms256m -Xmx768m}
+      TZ: Asia/Seoul
+    ports:
+      - "${API_PORT:-8080}:8080"
+    networks:
+      - popup-map
+
+volumes:
+  postgres_data:
+
+networks:
+  popup-map:
+    driver: bridge
