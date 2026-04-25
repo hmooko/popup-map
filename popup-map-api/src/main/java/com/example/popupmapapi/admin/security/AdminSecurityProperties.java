@@ -4,8 +4,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "app.security.admin")
 public record AdminSecurityProperties(
-        String email,
-        String password,
         String jwtSecret,
         long expiresIn
 ) {

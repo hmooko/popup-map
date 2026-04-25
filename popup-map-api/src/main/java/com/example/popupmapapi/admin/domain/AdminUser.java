@@ -43,4 +43,12 @@ public class AdminUser {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    public static AdminUser create(String email, String passwordHash, AdminRole role) {
+        AdminUser adminUser = new AdminUser();
+        adminUser.email = email;
+        adminUser.passwordHash = passwordHash;
+        adminUser.role = role;
+        return adminUser;
+    }
+
 }

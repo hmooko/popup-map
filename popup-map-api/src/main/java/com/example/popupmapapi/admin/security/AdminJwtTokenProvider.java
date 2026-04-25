@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class AdminJwtTokenProvider {
     private final AdminSecurityProperties properties;
     private final ObjectMapper objectMapper;
 
-    public String createToken() {
+    public String createToken(String email) {
         Instant now = Instant.now();
         Map<String, Object> header = new LinkedHashMap<>();
         header.put("alg", JWT_ALGORITHM);
@@ -34,7 +35,7 @@ public class AdminJwtTokenProvider {
 
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("iss", ISSUER);
-        payload.put("sub", properties.email());
+        payload.put("sub", email);
         payload.put("role", AdminRole.ADMIN.name());
         payload.put("iat", now.getEpochSecond());
         payload.put("exp", now.plusSeconds(properties.expiresIn()).getEpochSecond());
@@ -46,27 +47,39 @@ public class AdminJwtTokenProvider {
     }
 
     public boolean isValidAdminToken(String token) {
+        return getValidAdminEmail(token).isPresent();
+    }
+
+    public Optional<String> getValidAdminEmail(String token) {
         try {
             String[] parts = token.split("\\.");
             if (parts.length != 3) {
-                return false;
+                return Optional.empty();
             }
             String unsignedToken = parts[0] + "." + parts[1];
             if (!constantTimeEquals(sign(unsignedToken), parts[2])) {
-                return false;
+                return Optional.empty();
             }
 
             Map<String, Object> header = decodeJson(parts[0]);
             Map<String, Object> payload = decodeJson(parts[1]);
-            return JWT_ALGORITHM.equals(header.get("alg"))
+            if (JWT_ALGORITHM.equals(header.get("alg"))
                     && TOKEN_TYPE.equals(header.get("typ"))
                     && ISSUER.equals(payload.get("iss"))
-                    && properties.email().equals(payload.get("sub"))
                     && AdminRole.ADMIN.name().equals(payload.get("role"))
-                    && !isExpired(payload.get("exp"));
+                    && !isExpired(payload.get("exp"))
+                    && payload.get("sub") instanceof String email
+                    && !email.isBlank()) {
+                return Optional.of(email);
+            }
+            return Optional.empty();
         } catch (RuntimeException exception) {
-            return false;
+            return Optional.empty();
         }
+    }
+
+    public long expiresIn() {
+        return properties.expiresIn();
     }
 
     private boolean isExpired(Object exp) {
