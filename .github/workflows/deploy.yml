@@ -51,6 +51,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build and Push DB Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./popup-map-db
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/popup-map-db:main
+          platforms: linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -65,7 +75,8 @@ jobs:
           script: |
             set -e
 
-            IMAGE=${{ secrets.DOCKER_USERNAME }}/popup-map-api:main
+            API_IMAGE=${{ secrets.DOCKER_USERNAME }}/popup-map-api:main
+            DB_IMAGE=${{ secrets.DOCKER_USERNAME }}/popup-map-db:main
             APP_DIR="${{ secrets.APP_DIR }}"
             APP_DIR=${APP_DIR:-/home/${{ secrets.OCI_USERNAME }}/popup-map}
             ENV_FILE="$APP_DIR/.env"
@@ -107,6 +118,7 @@ jobs:
 
             sudo docker network create "$NETWORK_NAME" || true
             sudo docker volume create popup-map-postgres-data || true
+            sudo docker pull "$DB_IMAGE"
 
             if ! sudo docker ps -a --format '{{.Names}}' | grep -qx "$DB_CONTAINER"; then
               sudo docker run -d \
@@ -116,12 +128,12 @@ jobs:
                 -e TZ=Asia/Seoul \
                 -v popup-map-postgres-data:/var/lib/postgresql/data \
                 --restart unless-stopped \
-                postgis/postgis:16-3.5
+                "$DB_IMAGE"
             else
               sudo docker start "$DB_CONTAINER"
             fi
 
-            sudo docker pull "$IMAGE"
+            sudo docker pull "$API_IMAGE"
 
             sudo docker stop "$API_CONTAINER" || true
             sudo docker rm "$API_CONTAINER" || true
@@ -137,6 +149,6 @@ jobs:
               -e JAVA_OPTS="$API_JAVA_OPTS" \
               -e TZ=Asia/Seoul \
               --restart unless-stopped \
-              "$IMAGE"
+              "$API_IMAGE"
 
             sudo docker image prune -f

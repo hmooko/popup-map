@@ -40,10 +40,11 @@ ADMIN_JWT_SECRET
 
 ```text
 GitHub Actions에서 API Docker 이미지 빌드
+GitHub Actions에서 DB Docker 이미지 빌드
 Docker Hub에 push
 서버 SSH 접속
 서버에서 docker pull
-PostGIS 컨테이너가 없으면 생성
+DB 컨테이너가 없으면 생성
 API 컨테이너 재실행
 ```
 
@@ -69,7 +70,7 @@ OCI_KEY: 배포 서버 private key
 APP_DIR: 서버 .env가 있는 경로, 예: /home/ubuntu/popup-map
 ```
 
-`main` 브랜치에 push하면 `popup-map-api:main` 태그로 배포된다.
+`main` 브랜치에 push하면 `popup-map-api:main`, `popup-map-db:main` 태그로 배포된다.
 
 서버에서 로그 확인:
 
