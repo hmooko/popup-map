@@ -9,6 +9,8 @@ import com.example.popupmapapi.popup.web.dto.PageResponse;
 import com.example.popupmapapi.popup.web.dto.PopupDetailResponse;
 import com.example.popupmapapi.popup.web.dto.PopupListItemResponse;
 import com.example.popupmapapi.popup.web.dto.PopupMapItemResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
@@ -28,12 +30,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Popup", description = "사용자용 팝업 조회 API")
 @RequestMapping("/api/v1/popups")
 public class PopupController {
 
     private final PopupService popupService;
 
     @GetMapping
+    @Operation(summary = "팝업 목록 조회", description = "지역, 카테고리, 상태, 기간 등 조건으로 팝업 목록을 조회합니다.")
     public PageResponse<PopupListItemResponse> searchPopups(
             @RequestParam(required = false) Region region,
             @RequestParam(required = false) Category category,
@@ -59,11 +63,13 @@ public class PopupController {
     }
 
     @GetMapping("/{popupId}")
+    @Operation(summary = "팝업 상세 조회", description = "팝업 ID로 상세 정보를 조회합니다.")
     public PopupDetailResponse getPopup(@PathVariable Long popupId) {
         return popupService.getPopup(popupId);
     }
 
     @GetMapping("/map")
+    @Operation(summary = "지도 영역 팝업 조회", description = "현재 지도 바운딩 박스 안에 포함되는 팝업 목록을 조회합니다.")
     public List<PopupMapItemResponse> getMapPopups(
             @RequestParam @DecimalMin("-90.0") @DecimalMax("90.0") BigDecimal southWestLat,
             @RequestParam @DecimalMin("-180.0") @DecimalMax("180.0") BigDecimal southWestLng,
@@ -74,6 +80,7 @@ public class PopupController {
     }
 
     @GetMapping("/nearby")
+    @Operation(summary = "주변 팝업 조회", description = "현재 좌표 기준 반경 내 팝업 목록을 조회합니다.")
     public List<NearbyPopupResponse> getNearbyPopups(
             @RequestParam @DecimalMin("-90.0") @DecimalMax("90.0") BigDecimal lat,
             @RequestParam @DecimalMin("-180.0") @DecimalMax("180.0") BigDecimal lng,

@@ -6,7 +6,9 @@ import com.example.popupmapapi.admin.web.dto.PopupUpdateRequest;
 import com.example.popupmapapi.admin.web.dto.PopupVisibilityRequest;
 import com.example.popupmapapi.admin.web.dto.PopupVisibilityResponse;
 import com.example.popupmapapi.popup.service.PopupService;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Admin Popup", description = "관리자용 팝업 관리 API")
+@SecurityRequirement(name = "adminBearerAuth")
 @RequestMapping("/api/v1/admin/popups")
 public class AdminPopupController {
 
@@ -28,11 +32,13 @@ public class AdminPopupController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "팝업 등록", description = "새 팝업스토어를 등록합니다.")
     public AdminPopupResponse createPopup(@Valid @RequestBody PopupCreateRequest request) {
         return popupService.createPopup(request);
     }
 
     @PatchMapping("/{popupId}")
+    @Operation(summary = "팝업 수정", description = "기존 팝업스토어 정보를 수정합니다.")
     public AdminPopupResponse updatePopup(
             @PathVariable Long popupId,
             @Valid @RequestBody PopupUpdateRequest request
@@ -42,11 +48,13 @@ public class AdminPopupController {
 
     @DeleteMapping("/{popupId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "팝업 삭제", description = "팝업스토어를 삭제합니다.")
     public void deletePopup(@PathVariable Long popupId) {
         popupService.deletePopup(popupId);
     }
 
     @PatchMapping("/{popupId}/visibility")
+    @Operation(summary = "팝업 노출 상태 변경", description = "팝업 노출 여부를 변경합니다.")
     public PopupVisibilityResponse changeVisibility(
             @PathVariable Long popupId,
             @Valid @RequestBody PopupVisibilityRequest request
