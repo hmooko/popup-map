@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, ShieldCheck } from "lucide-react";
 import { MapPanel } from "@/components/map/MapPanel";
 import { FilterBar } from "@/components/popup/FilterBar";
 import { PopupList } from "@/components/popup/PopupList";
 import { mockPopups } from "@/data/mockPopups";
+import { fetchPopups, getApiBaseUrl } from "@/lib/api";
 import { getPopupStatus, isOpenToday } from "@/lib/popupStatus";
 import type { Popup, PopupFilters } from "@/types/popup";
 
@@ -20,12 +21,42 @@ const initialFilters: PopupFilters = {
 export default function Home() {
   const [filters, setFilters] = useState<PopupFilters>(initialFilters);
   const [query, setQuery] = useState("");
-  const [selectedPopup, setSelectedPopup] = useState<Popup | null>(mockPopups[0]);
+  const [popups, setPopups] = useState<Popup[]>(mockPopups);
+  const [selectedPopup, setSelectedPopup] = useState<Popup | null>(null);
+  const [apiState, setApiState] = useState<"loading" | "connected" | "fallback">("loading");
+
+  useEffect(() => {
+    let active = true;
+
+    fetchPopups()
+      .then((apiPopups) => {
+        if (!active) {
+          return;
+        }
+
+        setPopups(apiPopups);
+        setSelectedPopup(null);
+        setApiState("connected");
+      })
+      .catch(() => {
+        if (!active) {
+          return;
+        }
+
+        setPopups(mockPopups);
+        setSelectedPopup(null);
+        setApiState("fallback");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const filteredPopups = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    return mockPopups
+    return popups
       .filter((popup) => popup.visible)
       .filter((popup) => isOpenToday(popup))
       .filter((popup) => filters.region === "ALL" || popup.region === filters.region)
@@ -43,7 +74,7 @@ export default function Home() {
           .toLowerCase()
           .includes(normalizedQuery);
       });
-  }, [filters, query]);
+  }, [filters, popups, query]);
 
   function handleSelect(popup: Popup) {
     setSelectedPopup(popup);
@@ -52,7 +83,7 @@ export default function Home() {
   const visibleSelectedPopup =
     selectedPopup && filteredPopups.some((popup) => popup.id === selectedPopup.id)
       ? selectedPopup
-      : filteredPopups[0] ?? null;
+      : null;
 
   return (
     <main className="app-shell">
@@ -76,6 +107,10 @@ export default function Home() {
 
       <div className="main-grid">
         <aside className="side-panel">
+          <div className={apiState === "connected" ? "api-state connected" : "api-state"}>
+            <span>{apiState === "connected" ? "API 연결됨" : "mock 데이터 사용 중"}</span>
+            <strong>{getApiBaseUrl()}</strong>
+          </div>
           <FilterBar filters={filters} onChange={setFilters} />
           <PopupList
             popups={filteredPopups}
