@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Ticket } from "lucide-react";
+import { ChevronRight, Ticket } from "lucide-react";
 import { categoryLabels, regionLabels } from "@/lib/labels";
 import type { Popup } from "@/types/popup";
 
@@ -29,10 +29,10 @@ export function SelectedPopupPanel({ popup }: SelectedPopupPanelProps) {
         <span>예약</span>
         <strong>{popup.reservationRequired ? "필요" : "불필요"}</strong>
       </div>
-      <a className="primary-action" href={popup.reservationUrl ?? popup.officialUrl ?? "#"}>
+      <a className="primary-action" href={`/popups/${popup.id}`}>
         <Ticket size={16} />
         상세 보기
-        <ExternalLink size={15} />
+        <ChevronRight size={15} />
       </a>
     </article>
   );

@@ -39,7 +39,8 @@ a {
 }
 
 .app-shell,
-.admin-shell {
+.admin-shell,
+.detail-shell {
   min-height: 100vh;
   padding: 32px;
 }
@@ -507,6 +508,107 @@ input:disabled {
   width: 100%;
 }
 
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 72px;
+  padding: 14px 20px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.detail-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.detail-hero-image,
+.detail-summary,
+.detail-info-card {
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.detail-hero-image {
+  min-height: 460px;
+}
+
+.detail-summary {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding: 28px;
+}
+
+.detail-summary h1,
+.detail-summary p {
+  margin: 0;
+}
+
+.detail-summary h1 {
+  font-size: 34px;
+  line-height: 1.2;
+}
+
+.detail-summary p {
+  color: #4b5563;
+  line-height: 1.7;
+}
+
+.detail-action-row {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 800;
+}
+
+.detail-info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.detail-info-card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 132px;
+  padding: 18px;
+}
+
+.detail-info-card svg {
+  color: var(--green);
+}
+
+.detail-info-card span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.detail-info-card strong {
+  overflow-wrap: anywhere;
+  font-size: 16px;
+}
+
 .admin-header {
   justify-content: flex-start;
 }
@@ -640,7 +742,9 @@ input:disabled {
 
 @media (max-width: 1080px) {
   .main-grid,
-  .admin-grid {
+  .admin-grid,
+  .detail-hero,
+  .detail-info-grid {
     grid-template-columns: 1fr;
   }
 
@@ -651,13 +755,19 @@ input:disabled {
 
 @media (max-width: 720px) {
   .app-shell,
-  .admin-shell {
+  .admin-shell,
+  .detail-shell {
     padding: 16px;
   }
 
   .top-header {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .detail-header {
+    align-items: flex-start;
+    flex-direction: column-reverse;
   }
 
   .brand,
@@ -688,5 +798,17 @@ input:disabled {
     right: 12px;
     bottom: 58px;
     width: calc(100% - 24px);
+  }
+
+  .detail-hero-image {
+    min-height: 300px;
+  }
+
+  .detail-summary {
+    padding: 20px;
+  }
+
+  .detail-summary h1 {
+    font-size: 27px;
   }
 }
