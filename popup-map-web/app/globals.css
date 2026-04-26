@@ -609,6 +609,12 @@ input:disabled {
   font-size: 16px;
 }
 
+.detail-info-card small {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .admin-header {
   justify-content: flex-start;
 }

@@ -109,6 +109,7 @@ public class PopupService {
                 .category(request.category())
                 .region(request.region())
                 .address(request.address())
+                .detailAddress(blankToNull(request.detailAddress()))
                 .latitude(geocodingResult.latitude())
                 .longitude(geocodingResult.longitude())
                 .startDate(request.startDate())
@@ -141,6 +142,7 @@ public class PopupService {
         }
         validateAdmission(nextFreeAdmission, nextEntryFee);
         String nextAddress = blankToNull(request.address());
+        String nextDetailAddress = blankToNull(request.detailAddress());
         GeocodingResult geocodingResult = nextAddress == null
                 ? null
                 : geocodingService.geocodeAddress(nextAddress);
@@ -151,6 +153,7 @@ public class PopupService {
                 request.category(),
                 request.region(),
                 nextAddress,
+                nextDetailAddress,
                 geocodingResult == null ? null : geocodingResult.latitude(),
                 geocodingResult == null ? null : geocodingResult.longitude(),
                 request.startDate(),

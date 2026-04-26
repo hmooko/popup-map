@@ -110,6 +110,7 @@ export default async function PopupDetailPage({ params }: PopupDetailPageProps) 
           <MapPin size={18} />
           <span>주소</span>
           <strong>{popup.address}</strong>
+          {popup.detailAddress ? <small>{popup.detailAddress}</small> : null}
         </div>
       </section>
     </main>

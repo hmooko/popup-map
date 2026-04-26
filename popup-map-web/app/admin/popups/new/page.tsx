@@ -12,6 +12,7 @@ interface PopupFormState {
   category: Category;
   region: Region;
   address: string;
+  detailAddress: string;
   startDate: string;
   endDate: string;
   openingHours: string;
@@ -31,6 +32,7 @@ const initialForm: PopupFormState = {
   category: "FASHION",
   region: "SEONGSU",
   address: "서울 성동구 연무장길 00",
+  detailAddress: "1층 팝업존",
   startDate: "2026-04-20",
   endDate: "2026-05-12",
   openingHours: "11:00-20:00",
@@ -122,6 +124,7 @@ export default function AdminPopupNewPage() {
       category: form.category,
       region: form.region,
       address: form.address.trim(),
+      detailAddress: form.detailAddress.trim() || null,
       startDate: form.startDate,
       endDate: form.endDate,
       openingHours: form.openingHours.trim(),
@@ -249,6 +252,15 @@ export default function AdminPopupNewPage() {
                 required
                 value={form.address}
                 onChange={(event) => update("address", event.target.value)}
+              />
+            </label>
+
+            <label>
+              상세 주소
+              <input
+                value={form.detailAddress}
+                onChange={(event) => update("detailAddress", event.target.value)}
+                placeholder="층, 호수, 매장 위치 등"
               />
             </label>
 
@@ -401,6 +413,7 @@ export default function AdminPopupNewPage() {
           <div className="preview-image" />
           <strong>{form.title || "팝업명"}</strong>
           <span>{previewMeta}</span>
+          <span>{form.detailAddress ? `${form.address} ${form.detailAddress}` : form.address}</span>
           <p>{form.description || "등록한 정보가 사용자 카드에 어떻게 보이는지 확인합니다."}</p>
         </aside>
       </div>

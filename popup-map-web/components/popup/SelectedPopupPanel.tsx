@@ -28,6 +28,8 @@ export function SelectedPopupPanel({ popup }: SelectedPopupPanelProps) {
         <strong>{popup.freeAdmission ? "무료" : `${popup.entryFee?.toLocaleString()}원`}</strong>
         <span>예약</span>
         <strong>{popup.reservationRequired ? "필요" : "불필요"}</strong>
+        <span>주소</span>
+        <strong>{popup.detailAddress ? `${popup.address} ${popup.detailAddress}` : popup.address}</strong>
       </div>
       <a className="primary-action" href={`/popups/${popup.id}`}>
         <Ticket size={16} />

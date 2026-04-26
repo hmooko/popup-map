@@ -16,6 +16,7 @@ public record PopupCreateRequest(
         @NotNull Category category,
         @NotNull Region region,
         @NotBlank @Size(max = 255) String address,
+        @Size(max = 255) String detailAddress,
         @NotNull LocalDate startDate,
         @NotNull LocalDate endDate,
         @NotBlank @Size(max = 80) String openingHours,

@@ -14,6 +14,7 @@ public record PopupUpdateRequest(
         Category category,
         Region region,
         @Size(max = 255) String address,
+        @Size(max = 255) String detailAddress,
         LocalDate startDate,
         LocalDate endDate,
         @Size(max = 80) String openingHours,

@@ -12,6 +12,7 @@ erDiagram
         varchar category
         varchar region
         varchar address
+        varchar detail_address
         decimal latitude
         decimal longitude
         geography location
@@ -66,6 +67,7 @@ erDiagram
 | `category` | 카테고리 enum |
 | `region` | 지역 enum |
 | `address` | 주소 |
+| `detail_address` | 상세 주소 |
 | `latitude` | 위도 |
 | `longitude` | 경도 |
 | `location` | PostGIS 위치 컬럼 |

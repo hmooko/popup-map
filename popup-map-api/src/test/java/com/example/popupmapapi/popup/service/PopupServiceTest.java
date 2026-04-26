@@ -42,6 +42,7 @@ class PopupServiceTest {
                 Category.FASHION,
                 Region.SEONGSU,
                 "서울 성동구 연무장길 00",
+                "1층 팝업존",
                 LocalDate.of(2026, 4, 20),
                 LocalDate.of(2026, 5, 12),
                 "11:00-20:00",
@@ -64,6 +65,7 @@ class PopupServiceTest {
         verify(popupRepository).save(captor.capture());
         Popup savedPopup = captor.getValue();
         assertThat(savedPopup.getAddress()).isEqualTo(request.address());
+        assertThat(savedPopup.getDetailAddress()).isEqualTo(request.detailAddress());
         assertThat(savedPopup.getLatitude()).isEqualByComparingTo("37.5446");
         assertThat(savedPopup.getLongitude()).isEqualByComparingTo("127.0557");
     }
@@ -77,6 +79,7 @@ class PopupServiceTest {
                 .category(Category.FASHION)
                 .region(Region.SEONGSU)
                 .address("서울 성동구 연무장길 00")
+                .detailAddress("1층 팝업존")
                 .latitude(new BigDecimal("37.5446"))
                 .longitude(new BigDecimal("127.0557"))
                 .startDate(LocalDate.of(2026, 4, 20))
@@ -95,6 +98,7 @@ class PopupServiceTest {
                 null,
                 null,
                 "서울 마포구 와우산로 00",
+                "2층 굿즈 마켓",
                 null,
                 null,
                 null,
@@ -114,6 +118,7 @@ class PopupServiceTest {
         popupService.updatePopup(1L, request);
 
         assertThat(popup.getAddress()).isEqualTo("서울 마포구 와우산로 00");
+        assertThat(popup.getDetailAddress()).isEqualTo("2층 굿즈 마켓");
         assertThat(popup.getLatitude()).isEqualByComparingTo("37.5563");
         assertThat(popup.getLongitude()).isEqualByComparingTo("126.9237");
     }

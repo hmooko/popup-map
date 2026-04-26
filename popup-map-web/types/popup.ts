@@ -26,6 +26,7 @@ export interface Popup {
   category: Category;
   region: Region;
   address: string;
+  detailAddress: string | null;
   latitude: number;
   longitude: number;
   startDate: string;

@@ -201,6 +201,7 @@ GET /api/v1/popups?region=SEONGSU&category=BEAUTY&freeOnly=true&page=0&size=20
       "category": "BEAUTY",
       "region": "SEONGSU",
       "address": "서울특별시 성동구 성수동1가 123-45",
+      "detailAddress": "1층 팝업존",
       "latitude": 37.5446,
       "longitude": 127.0557,
       "startDate": "2026-04-20",
@@ -246,6 +247,7 @@ GET /api/v1/popups/{popupId}
   "category": "BEAUTY",
   "region": "SEONGSU",
   "address": "서울특별시 성동구 성수동1가 123-45",
+  "detailAddress": "1층 팝업존",
   "latitude": 37.5446,
   "longitude": 127.0557,
   "startDate": "2026-04-20",
@@ -348,6 +350,7 @@ GET /api/v1/popups/nearby?lat=37.5446&lng=127.0557&radiusMeter=3000
     "category": "BEAUTY",
     "region": "SEONGSU",
     "address": "서울특별시 성동구 성수동1가 123-45",
+    "detailAddress": "1층 팝업존",
     "latitude": 37.5446,
     "longitude": 127.0557,
     "startDate": "2026-04-20",
@@ -387,6 +390,7 @@ Content-Type: application/json
   "category": "BEAUTY",
   "region": "SEONGSU",
   "address": "서울특별시 성동구 성수동1가 123-45",
+  "detailAddress": "1층 팝업존",
   "latitude": 37.5446,
   "longitude": 127.0557,
   "startDate": "2026-04-20",
@@ -412,6 +416,7 @@ Content-Type: application/json
 | `category` | `Category` | 예 | 카테고리 |
 | `region` | `Region` | 예 | 지역 |
 | `address` | `string` | 예 | 주소 |
+| `detailAddress` | `string` | 아니오 | 상세 주소 |
 | `latitude` | `number` | 예 | 위도 |
 | `longitude` | `number` | 예 | 경도 |
 | `startDate` | `date` | 예 | 운영 시작일 |
@@ -445,6 +450,7 @@ Content-Type: application/json
   "category": "BEAUTY",
   "region": "SEONGSU",
   "address": "서울특별시 성동구 성수동1가 123-45",
+  "detailAddress": "1층 팝업존",
   "latitude": 37.5446,
   "longitude": 127.0557,
   "startDate": "2026-04-20",
@@ -501,6 +507,7 @@ PATCH /api/v1/admin/popups/{popupId}
   "category": "BEAUTY",
   "region": "SEONGSU",
   "address": "서울특별시 성동구 성수동1가 123-45",
+  "detailAddress": "1층 팝업존",
   "latitude": 37.5446,
   "longitude": 127.0557,
   "startDate": "2026-04-20",
@@ -628,6 +635,7 @@ POST /api/v1/admin/auth/login
 | `category` | `Category` |
 | `region` | `Region` |
 | `address` | `string` |
+| `detailAddress` | `string \| null` |
 | `latitude` | `number` |
 | `longitude` | `number` |
 | `startDate` | `date` |
@@ -672,6 +680,7 @@ POST /api/v1/admin/auth/login
 | 필드 | 타입 |
 | --- | --- |
 | `address` | `string` |
+| `detailAddress` | `string \| null` |
 | `distanceMeter` | `integer` |
 
 ### AdminPopupResponse

@@ -48,6 +48,9 @@ public class Popup {
     @Column(nullable = false, length = 255)
     private String address;
 
+    @Column(length = 255)
+    private String detailAddress;
+
     @Column(nullable = false, precision = 9, scale = 6)
     private BigDecimal latitude;
 
@@ -99,6 +102,7 @@ public class Popup {
             Category category,
             Region region,
             String address,
+            String detailAddress,
             BigDecimal latitude,
             BigDecimal longitude,
             LocalDate startDate,
@@ -118,6 +122,7 @@ public class Popup {
         this.category = category;
         this.region = region;
         this.address = address;
+        this.detailAddress = detailAddress;
         this.latitude = latitude;
         this.longitude = longitude;
         this.startDate = startDate;
@@ -139,6 +144,7 @@ public class Popup {
             Category category,
             Region region,
             String address,
+            String detailAddress,
             BigDecimal latitude,
             BigDecimal longitude,
             LocalDate startDate,
@@ -169,6 +175,9 @@ public class Popup {
         }
         if (address != null) {
             this.address = address;
+        }
+        if (detailAddress != null) {
+            this.detailAddress = detailAddress;
         }
         if (latitude != null) {
             this.latitude = latitude;
