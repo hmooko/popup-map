@@ -1,9 +1,10 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import { ArrowLeft, LogIn, Save } from "lucide-react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { ArrowLeft, LogIn, RefreshCw, Save, Trash2 } from "lucide-react";
 import { categoryLabels, regionLabels } from "@/lib/labels";
-import type { Category, Region } from "@/types/popup";
+import { mapPopupApiItem, type PopupApiItem } from "@/lib/popupMapper";
+import type { Category, Popup, Region } from "@/types/popup";
 
 interface PopupFormState {
   title: string;
@@ -59,12 +60,35 @@ export default function AdminPopupNewPage() {
   const [email, setEmail] = useState("admin@example.com");
   const [password, setPassword] = useState("");
   const [accessToken, setAccessToken] = useState("");
+  const [activeTab, setActiveTab] = useState<"create" | "search">("create");
   const [authStatus, setAuthStatus] = useState<"idle" | "loggingIn" | "success" | "error">(
     "idle"
   );
   const [authMessage, setAuthMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [adminPopups, setAdminPopups] = useState<Popup[]>([]);
+  const [deleteQuery, setDeleteQuery] = useState("");
+  const [deleteStatus, setDeleteStatus] = useState<"idle" | "loading" | "deleting" | "success" | "error">(
+    "idle"
+  );
+  const [deleteMessage, setDeleteMessage] = useState("");
+  const [deletingPopupId, setDeletingPopupId] = useState<number | null>(null);
+
+  const filteredDeletePopups = useMemo(() => {
+    const normalizedQuery = deleteQuery.trim().toLowerCase();
+
+    if (!normalizedQuery) {
+      return adminPopups;
+    }
+
+    return adminPopups.filter((popup) =>
+      [popup.title, popup.brandName, popup.address, popup.detailAddress ?? "", String(popup.id)]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery)
+    );
+  }, [adminPopups, deleteQuery]);
 
   const previewMeta = useMemo(() => {
     const start = form.startDate.slice(5).replace("-", ".");
@@ -76,6 +100,39 @@ export default function AdminPopupNewPage() {
   function update<K extends keyof PopupFormState>(key: K, value: PopupFormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
   }
+
+  async function loadAdminPopups() {
+    setDeleteStatus("loading");
+    setDeleteMessage("");
+
+    try {
+      const response = await fetch("/api/popups", {
+        cache: "no-store"
+      });
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        setDeleteStatus("error");
+        setDeleteMessage(responseText || `목록 조회 실패: ${response.status}`);
+        return;
+      }
+
+      const data = JSON.parse(responseText) as { content?: PopupApiItem[] };
+      const mappedPopups = (data.content ?? []).map((popup, index) =>
+        mapPopupApiItem(popup, index)
+      );
+
+      setAdminPopups(mappedPopups);
+      setDeleteStatus("idle");
+    } catch (error) {
+      setDeleteStatus("error");
+      setDeleteMessage(error instanceof Error ? error.message : "목록 조회 중 오류가 발생했습니다.");
+    }
+  }
+
+  useEffect(() => {
+    void loadAdminPopups();
+  }, []);
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -163,6 +220,43 @@ export default function AdminPopupNewPage() {
     }
   }
 
+  async function handleDelete(popup: Popup) {
+    if (!window.confirm(`${popup.title} 팝업을 삭제할까요? 삭제 후에는 되돌릴 수 없습니다.`)) {
+      return;
+    }
+
+    setDeleteStatus("deleting");
+    setDeletingPopupId(popup.id);
+    setDeleteMessage("");
+
+    try {
+      const response = await fetch(`/api/admin/popups/${popup.id}`, {
+        method: "DELETE",
+        headers: {
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+        }
+      });
+
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        setDeleteStatus("error");
+        setDeletingPopupId(null);
+        setDeleteMessage(responseText || `삭제 실패: ${response.status}`);
+        return;
+      }
+
+      setDeleteStatus("success");
+      setDeletingPopupId(null);
+      setAdminPopups((current) => current.filter((item) => item.id !== popup.id));
+      setDeleteMessage(`${popup.title} 팝업을 삭제했습니다.`);
+    } catch (error) {
+      setDeleteStatus("error");
+      setDeletingPopupId(null);
+      setDeleteMessage(error instanceof Error ? error.message : "삭제 중 오류가 발생했습니다.");
+    }
+  }
+
   return (
     <main className="admin-shell">
       <header className="top-header admin-header">
@@ -174,52 +268,74 @@ export default function AdminPopupNewPage() {
         <span className="api-badge">Spring Boot API</span>
       </header>
 
+      <section className="form-panel admin-login-panel">
+        <div className="section-heading">
+          <div>
+            <h2>관리자 로그인</h2>
+            <p>명세의 관리자 로그인 API로 토큰을 발급받습니다.</p>
+          </div>
+          <span className={accessToken ? "login-state success" : "login-state"}>
+            {accessToken ? "로그인됨" : "로그인 필요"}
+          </span>
+        </div>
+
+        <form className="login-form" onSubmit={handleLogin}>
+          <label>
+            이메일
+            <input
+              required
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+          </label>
+          <label>
+            비밀번호
+            <input
+              required
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="관리자 비밀번호"
+            />
+          </label>
+          <button className="login-button" disabled={authStatus === "loggingIn"} type="submit">
+            <LogIn size={17} />
+            {authStatus === "loggingIn" ? "로그인 중" : "로그인"}
+          </button>
+        </form>
+
+        {authMessage ? (
+          <output className={authStatus === "success" ? "form-message success" : "form-message"}>
+            {authMessage}
+          </output>
+        ) : null}
+      </section>
+
+      <div className="admin-tabs" role="tablist" aria-label="관리자 작업">
+        <button
+          className={activeTab === "create" ? "admin-tab active" : "admin-tab"}
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "create"}
+          onClick={() => setActiveTab("create")}
+        >
+          생성
+        </button>
+        <button
+          className={activeTab === "search" ? "admin-tab active" : "admin-tab"}
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "search"}
+          onClick={() => setActiveTab("search")}
+        >
+          검색
+        </button>
+      </div>
+
+      {activeTab === "create" ? (
       <div className="admin-grid">
         <section className="form-panel">
-          <div className="section-heading">
-            <div>
-              <h2>관리자 로그인</h2>
-              <p>명세의 관리자 로그인 API로 토큰을 발급받습니다.</p>
-            </div>
-            <span className={accessToken ? "login-state success" : "login-state"}>
-              {accessToken ? "로그인됨" : "로그인 필요"}
-            </span>
-          </div>
-
-          <form className="login-form" onSubmit={handleLogin}>
-            <label>
-              이메일
-              <input
-                required
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-              />
-            </label>
-            <label>
-              비밀번호
-              <input
-                required
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="관리자 비밀번호"
-              />
-            </label>
-            <button className="login-button" disabled={authStatus === "loggingIn"} type="submit">
-              <LogIn size={17} />
-              {authStatus === "loggingIn" ? "로그인 중" : "로그인"}
-            </button>
-          </form>
-
-          {authMessage ? (
-            <output
-              className={authStatus === "success" ? "form-message success" : "form-message"}
-            >
-              {authMessage}
-            </output>
-          ) : null}
-
           <div className="section-heading">
             <div>
               <h2>기본 정보</h2>
@@ -417,6 +533,70 @@ export default function AdminPopupNewPage() {
           <p>{form.description || "등록한 정보가 사용자 카드에 어떻게 보이는지 확인합니다."}</p>
         </aside>
       </div>
+      ) : (
+        <section className="form-panel search-panel">
+          <div className="section-heading">
+            <div>
+              <h2>팝업 검색</h2>
+              <p>팝업명, 브랜드, 주소로 검색한 뒤 삭제합니다.</p>
+            </div>
+            <span>{filteredDeletePopups.length}개</span>
+          </div>
+
+          <div className="search-actions">
+            <label>
+              검색
+              <input
+                value={deleteQuery}
+                onChange={(event) => setDeleteQuery(event.target.value)}
+                placeholder="팝업명, 브랜드, 주소"
+              />
+            </label>
+            <button
+              className="secondary-action"
+              disabled={deleteStatus === "loading"}
+              type="button"
+              onClick={loadAdminPopups}
+            >
+              <RefreshCw size={16} />
+              {deleteStatus === "loading" ? "불러오는 중" : "목록 새로고침"}
+            </button>
+          </div>
+
+          <div className="delete-result-list">
+            {filteredDeletePopups.length > 0 ? (
+              filteredDeletePopups.map((popup) => (
+                <article className="delete-result-item" key={popup.id}>
+                  <div>
+                    <small>
+                      #{popup.id} · {categoryLabels[popup.category]} · {regionLabels[popup.region]}
+                    </small>
+                    <strong>{popup.title}</strong>
+                    <span>{popup.address}</span>
+                  </div>
+                  <button
+                    className="delete-button"
+                    disabled={deleteStatus === "deleting"}
+                    type="button"
+                    onClick={() => void handleDelete(popup)}
+                  >
+                    <Trash2 size={16} />
+                    {deletingPopupId === popup.id ? "삭제 중" : "삭제"}
+                  </button>
+                </article>
+              ))
+            ) : (
+              <div className="empty-state">검색 결과가 없습니다.</div>
+            )}
+          </div>
+
+          {deleteMessage ? (
+            <output className={deleteStatus === "success" ? "form-message success" : "form-message"}>
+              {deleteMessage}
+            </output>
+          ) : null}
+        </section>
+      )}
     </main>
   );
 }

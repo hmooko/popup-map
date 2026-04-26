@@ -86,6 +86,7 @@ a {
 .admin-link,
 .back-link,
 .login-button,
+.delete-button,
 .save-button,
 .primary-action {
   display: inline-flex;
@@ -661,6 +662,36 @@ input:disabled {
   margin-top: 24px;
 }
 
+.admin-login-panel,
+.admin-tabs,
+.search-panel {
+  margin-top: 24px;
+}
+
+.admin-tabs {
+  display: inline-flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.admin-tab {
+  min-height: 38px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.admin-tab.active {
+  background: var(--navy);
+  color: #ffffff;
+}
+
 .form-panel,
 .preview-panel {
   padding: 24px;
@@ -715,7 +746,13 @@ input:disabled {
   margin-top: 4px;
 }
 
-.save-button:disabled {
+.delete-button {
+  width: 100%;
+  background: #991b1b;
+}
+
+.save-button:disabled,
+.delete-button:disabled {
   opacity: 0.65;
   cursor: wait;
 }
@@ -757,6 +794,80 @@ input:disabled {
 .preview-panel span {
   color: var(--muted);
   font-size: 13px;
+}
+
+.delete-panel {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.delete-panel h2,
+.delete-panel p {
+  margin: 0;
+}
+
+.delete-result-list {
+  display: grid;
+  gap: 10px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.search-panel .delete-result-list {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  max-height: none;
+}
+
+.search-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.delete-result-item {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-subtle);
+}
+
+.delete-result-item div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.delete-result-item small {
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.delete-result-item strong,
+.delete-result-item span {
+  overflow-wrap: anywhere;
+}
+
+.delete-result-item strong {
+  font-size: 15px;
+}
+
+.delete-result-item span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.delete-result-item .delete-button {
+  min-height: 38px;
+  padding: 0 12px;
 }
 
 @media (max-width: 1080px) {
@@ -809,7 +920,8 @@ input:disabled {
 
   .filter-grid,
   .login-form,
-  .two-col {
+  .two-col,
+  .search-actions {
     grid-template-columns: 1fr;
   }
 
