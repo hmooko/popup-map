@@ -245,6 +245,10 @@ input:disabled {
   padding: 20px;
 }
 
+.sheet-handle {
+  display: none;
+}
+
 .section-heading {
   display: flex;
   align-items: flex-start;
@@ -836,20 +840,61 @@ input:disabled {
     z-index: 8;
     bottom: 16px;
     order: 4;
-    max-height: min(48vh, 360px);
     margin-top: -156px;
     border: 1px solid var(--line);
     box-shadow: var(--shadow);
+    transition:
+      max-height 180ms ease,
+      margin-top 180ms ease;
   }
 
-  .popup-list::before {
-    content: "";
+  .popup-list.sheet-full {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    max-height: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    padding: 16px;
+  }
+
+  .popup-list.sheet-collapsed {
+    max-height: 88px;
+    margin-top: -44px;
+    overflow: hidden;
+  }
+
+  .sheet-handle {
+    display: grid;
     align-self: center;
-    width: 40px;
-    height: 4px;
-    margin-bottom: 14px;
+    width: 44px;
+    height: 32px;
+    place-items: center;
+    margin: -6px 0 8px;
+    border: 1px solid var(--line);
     border-radius: 999px;
-    background: #d1d5db;
+    background: var(--surface-subtle);
+    color: var(--navy);
+    cursor: pointer;
+    touch-action: none;
+  }
+
+  .sheet-handle:active {
+    background: #eef2f7;
+  }
+
+  .sheet-collapsed .section-heading {
+    margin-bottom: 0;
+  }
+
+  .sheet-collapsed .section-heading p,
+  .sheet-collapsed .cards-stack {
+    display: none;
+  }
+
+  .sheet-full .cards-stack {
+    max-height: none;
   }
 
   .popup-card {
@@ -873,6 +918,50 @@ input:disabled {
     right: 12px;
     bottom: 58px;
     width: calc(100% - 24px);
+  }
+
+  .selected-panel {
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 8px 12px;
+    padding: 12px;
+  }
+
+  .selected-image {
+    grid-row: span 4;
+    width: 88px;
+    height: 88px;
+  }
+
+  .selected-panel h3 {
+    font-size: 17px;
+  }
+
+  .selected-panel p {
+    display: none;
+  }
+
+  .selected-panel .detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3px 10px;
+  }
+
+  .selected-panel .detail-grid span {
+    display: none;
+  }
+
+  .selected-panel .detail-grid strong {
+    overflow-wrap: anywhere;
+  }
+
+  .selected-panel .detail-grid strong:nth-of-type(3),
+  .selected-panel .detail-grid strong:nth-of-type(4),
+  .selected-panel .detail-grid strong:nth-of-type(5) {
+    display: none;
+  }
+
+  .selected-panel .primary-action {
+    grid-column: 1 / -1;
+    min-height: 40px;
   }
 
   .detail-hero-image {
