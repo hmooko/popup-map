@@ -33,6 +33,7 @@ public class PopupService {
     private static final int CLOSING_SOON_DAYS = 7;
 
     private final PopupRepository popupRepository;
+    private final GeocodingService geocodingService;
 
     public PageResponse<PopupListItemResponse> searchPopups(
             Region region,
@@ -100,6 +101,7 @@ public class PopupService {
     @Transactional
     public AdminPopupResponse createPopup(PopupCreateRequest request) {
         validateCreateRequest(request);
+        GeocodingResult geocodingResult = geocodingService.geocodeAddress(request.address());
         Popup popup = popupRepository.save(Popup.builder()
                 .title(request.title())
                 .brandName(request.brandName())
@@ -107,8 +109,8 @@ public class PopupService {
                 .category(request.category())
                 .region(request.region())
                 .address(request.address())
-                .latitude(request.latitude())
-                .longitude(request.longitude())
+                .latitude(geocodingResult.latitude())
+                .longitude(geocodingResult.longitude())
                 .startDate(request.startDate())
                 .endDate(request.endDate())
                 .openingHours(request.openingHours())
@@ -138,15 +140,19 @@ public class PopupService {
             nextEntryFee = popup.getEntryFee();
         }
         validateAdmission(nextFreeAdmission, nextEntryFee);
+        String nextAddress = blankToNull(request.address());
+        GeocodingResult geocodingResult = nextAddress == null
+                ? null
+                : geocodingService.geocodeAddress(nextAddress);
         popup.update(
                 blankToNull(request.title()),
                 blankToNull(request.brandName()),
                 request.description(),
                 request.category(),
                 request.region(),
-                blankToNull(request.address()),
-                request.latitude(),
-                request.longitude(),
+                nextAddress,
+                geocodingResult == null ? null : geocodingResult.latitude(),
+                geocodingResult == null ? null : geocodingResult.longitude(),
                 request.startDate(),
                 request.endDate(),
                 blankToNull(request.openingHours()),

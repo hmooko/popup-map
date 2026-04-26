@@ -12,8 +12,6 @@ interface PopupFormState {
   category: Category;
   region: Region;
   address: string;
-  latitude: string;
-  longitude: string;
   startDate: string;
   endDate: string;
   openingHours: string;
@@ -33,8 +31,6 @@ const initialForm: PopupFormState = {
   category: "FASHION",
   region: "SEONGSU",
   address: "서울 성동구 연무장길 00",
-  latitude: "37.5446",
-  longitude: "127.0557",
   startDate: "2026-04-20",
   endDate: "2026-05-12",
   openingHours: "11:00-20:00",
@@ -126,8 +122,6 @@ export default function AdminPopupNewPage() {
       category: form.category,
       region: form.region,
       address: form.address.trim(),
-      latitude: Number(form.latitude),
-      longitude: Number(form.longitude),
       startDate: form.startDate,
       endDate: form.endDate,
       openingHours: form.openingHours.trim(),
@@ -226,7 +220,7 @@ export default function AdminPopupNewPage() {
           <div className="section-heading">
             <div>
               <h2>기본 정보</h2>
-              <p>입력한 내용은 관리자 팝업 API로 저장됩니다.</p>
+              <p>주소를 기준으로 좌표는 서버에서 자동 계산해 저장됩니다.</p>
             </div>
           </div>
 
@@ -314,27 +308,6 @@ export default function AdminPopupNewPage() {
                   type="date"
                   value={form.endDate}
                   onChange={(event) => update("endDate", event.target.value)}
-                />
-              </label>
-            </div>
-
-            <div className="two-col">
-              <label>
-                위도
-                <input
-                  required
-                  inputMode="decimal"
-                  value={form.latitude}
-                  onChange={(event) => update("latitude", event.target.value)}
-                />
-              </label>
-              <label>
-                경도
-                <input
-                  required
-                  inputMode="decimal"
-                  value={form.longitude}
-                  onChange={(event) => update("longitude", event.target.value)}
                 />
               </label>
             </div>
