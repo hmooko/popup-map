@@ -1,5 +1,6 @@
 import { ArrowLeft, CalendarDays, Clock, ExternalLink, MapPin, Ticket } from "lucide-react";
 import { notFound } from "next/navigation";
+import { ShareLinkButton } from "@/components/common/ShareLinkButton";
 import { mockPopups } from "@/data/mockPopups";
 import { categoryLabels, regionLabels } from "@/lib/labels";
 import { mapPopupApiItem, type PopupApiItem } from "@/lib/popupMapper";
@@ -65,8 +66,18 @@ export default async function PopupDetailPage({ params }: PopupDetailPageProps) 
       <section className="detail-hero">
         <div className="detail-hero-image" style={{ background: popup.thumbnailColor }} />
         <div className="detail-summary">
-          <div className="card-kicker">
-            {categoryLabels[popup.category]} · {regionLabels[popup.region]}
+          <div className="detail-summary-top">
+            <div className="card-kicker">
+              {categoryLabels[popup.category]} · {regionLabels[popup.region]}
+            </div>
+            <ShareLinkButton
+              className="detail-share-button"
+              feedbackClassName="detail-share-feedback"
+              feedbackMode="inline"
+              shareText={`${popup.title} 팝업 링크`}
+              title={popup.title}
+              url={`/popups/${popup.id}`}
+            />
           </div>
           <h1>{popup.title}</h1>
           <p>{popup.description}</p>

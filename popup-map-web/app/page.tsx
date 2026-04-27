@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, ShieldCheck } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MapPanel } from "@/components/map/MapPanel";
 import { FilterBar } from "@/components/popup/FilterBar";
 import { PopupList } from "@/components/popup/PopupList";
@@ -18,6 +19,9 @@ const initialFilters: PopupFilters = {
 };
 
 export default function Home() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [filters, setFilters] = useState<PopupFilters>(initialFilters);
   const [query, setQuery] = useState("");
   const [allPopups, setAllPopups] = useState<Popup[]>(mockPopups);
@@ -98,16 +102,51 @@ export default function Home() {
       });
   }, [filters, popups, query]);
 
+  const requestedPopupIdParam = searchParams.get("popupId");
+  const requestedPopupId =
+    requestedPopupIdParam === null ? null : Number.parseInt(requestedPopupIdParam, 10);
+
   useEffect(() => {
     if (filteredPopups.length === 0) {
       setSelectedPopup(null);
       return;
     }
 
+    if (requestedPopupId !== null && Number.isInteger(requestedPopupId)) {
+      const requestedPopup = filteredPopups.find((popup) => popup.id === requestedPopupId);
+
+      if (requestedPopup) {
+        if (selectedPopup?.id !== requestedPopup.id) {
+          setSelectedPopup(requestedPopup);
+        }
+        return;
+      }
+    }
+
     if (!selectedPopup || !filteredPopups.some((popup) => popup.id === selectedPopup.id)) {
       setSelectedPopup(filteredPopups[0]);
     }
-  }, [filteredPopups, selectedPopup]);
+  }, [filteredPopups, requestedPopupId, selectedPopup]);
+
+  useEffect(() => {
+    const currentPopupId = searchParams.get("popupId");
+    const nextPopupId = selectedPopup ? String(selectedPopup.id) : null;
+
+    if (currentPopupId === nextPopupId || (!currentPopupId && nextPopupId === null)) {
+      return;
+    }
+
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+
+    if (nextPopupId) {
+      nextSearchParams.set("popupId", nextPopupId);
+    } else {
+      nextSearchParams.delete("popupId");
+    }
+
+    const nextQuery = nextSearchParams.toString();
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams, selectedPopup]);
 
   function handleSelect(popup: Popup) {
     setSelectedPopup(popup);
