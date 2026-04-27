@@ -98,4 +98,18 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
             @Param("radiusMeter") int radiusMeter,
             @Param("today") LocalDate today
     );
+
+    @Query("""
+            select p
+            from Popup p
+            where (
+                :keyword is null
+                or lower(p.title) like lower(concat('%', :keyword, '%'))
+                or lower(p.brandName) like lower(concat('%', :keyword, '%'))
+                or lower(p.address) like lower(concat('%', :keyword, '%'))
+                or lower(coalesce(p.detailAddress, '')) like lower(concat('%', :keyword, '%'))
+            )
+            order by p.updatedAt desc, p.createdAt desc
+            """)
+    List<Popup> searchAdminPopups(@Param("keyword") String keyword);
 }

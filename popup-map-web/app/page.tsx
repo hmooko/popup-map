@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, ShieldCheck } from "lucide-react";
+import { Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MapPanel } from "@/components/map/MapPanel";
 import { FilterBar } from "@/components/popup/FilterBar";
@@ -184,10 +184,6 @@ export default function Home() {
             placeholder="지역, 브랜드, 팝업명 검색"
           />
         </label>
-        <a className="admin-link" href="/admin/popups/new">
-          <ShieldCheck size={16} />
-          관리자
-        </a>
       </header>
 
       <div className="mobile-quick-filters" aria-label="모바일 빠른 필터">

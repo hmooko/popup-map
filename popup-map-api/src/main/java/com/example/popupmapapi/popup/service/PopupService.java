@@ -101,6 +101,13 @@ public class PopupService {
                 .toList();
     }
 
+    public List<AdminPopupResponse> getAdminPopups(String keyword) {
+        String normalizedKeyword = blankToNull(keyword);
+        return popupRepository.searchAdminPopups(normalizedKeyword).stream()
+                .map(AdminPopupResponse::from)
+                .toList();
+    }
+
     @Transactional
     public AdminPopupResponse createPopup(PopupCreateRequest request) {
         validateCreateRequest(request);
