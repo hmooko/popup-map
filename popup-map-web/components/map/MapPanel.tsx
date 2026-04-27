@@ -110,6 +110,10 @@ export function MapPanel({ popups, selectedPopup, onSelect }: MapPanelProps) {
   }, [openedPopupId, popups]);
 
   useEffect(() => {
+    setOpenedPopupId(selectedPopup?.id ?? null);
+  }, [selectedPopup]);
+
+  useEffect(() => {
     if (!kakaoMapKey || !mapContainerRef.current) {
       return;
     }

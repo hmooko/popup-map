@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useRef, useState, type PointerEvent } from "react";
 import type { Popup } from "@/types/popup";
 import { PopupCard } from "./PopupCard";
+import { SelectedPopupPanel } from "./SelectedPopupPanel";
 
 interface PopupListProps {
   popups: Popup[];
@@ -88,6 +89,12 @@ export function PopupList({ popups, selectedPopup, onSelect }: PopupListProps) {
         </div>
         <span>{popups.length}개</span>
       </div>
+
+      {selectedPopup ? (
+        <div className="sheet-selected-card">
+          <SelectedPopupPanel popup={selectedPopup} />
+        </div>
+      ) : null}
 
       <div className="cards-stack">
         {popups.length > 0 ? (

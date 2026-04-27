@@ -76,6 +76,17 @@ export default function Home() {
       });
   }, [filters, popups, query]);
 
+  useEffect(() => {
+    if (filteredPopups.length === 0) {
+      setSelectedPopup(null);
+      return;
+    }
+
+    if (!selectedPopup || !filteredPopups.some((popup) => popup.id === selectedPopup.id)) {
+      setSelectedPopup(filteredPopups[0]);
+    }
+  }, [filteredPopups, selectedPopup]);
+
   function handleSelect(popup: Popup) {
     setSelectedPopup(popup);
   }
@@ -104,6 +115,36 @@ export default function Home() {
           관리자
         </a>
       </header>
+
+      <div className="mobile-quick-filters" aria-label="모바일 빠른 필터">
+        <button className="chip active" type="button">
+          오늘 운영
+        </button>
+        <button
+          className={filters.region === "SEONGSU" ? "chip active-soft" : "chip"}
+          type="button"
+          onClick={() =>
+            setFilters((current) => ({
+              ...current,
+              region: current.region === "SEONGSU" ? "ALL" : "SEONGSU"
+            }))
+          }
+        >
+          성수
+        </button>
+        <button
+          className={filters.freeOnly ? "chip active-soft" : "chip"}
+          type="button"
+          onClick={() =>
+            setFilters((current) => ({
+              ...current,
+              freeOnly: !current.freeOnly
+            }))
+          }
+        >
+          무료
+        </button>
+      </div>
 
       <div className="main-grid">
         <aside className="side-panel">
