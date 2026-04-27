@@ -66,7 +66,8 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
             @Param("southWestLng") BigDecimal southWestLng,
             @Param("northEastLat") BigDecimal northEastLat,
             @Param("northEastLng") BigDecimal northEastLng,
-            @Param("today") LocalDate today
+            @Param("today") LocalDate today,
+            Pageable pageable
     );
 
     @Query(

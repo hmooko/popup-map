@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PopupService {
 
     private static final int CLOSING_SOON_DAYS = 7;
+    private static final int MAX_MAP_POPUPS = 50;
 
     private final PopupRepository popupRepository;
     private final GeocodingService geocodingService;
@@ -86,7 +87,8 @@ public class PopupService {
                         southWestLng,
                         northEastLat,
                         northEastLng,
-                        LocalDate.now()
+                        LocalDate.now(),
+                        PageRequest.of(0, MAX_MAP_POPUPS)
                 ).stream()
                 .map(PopupMapItemResponse::from)
                 .toList();
