@@ -38,6 +38,7 @@ export interface Popup {
   entryFee: number | null;
   officialUrl: string | null;
   reservationUrl: string | null;
+  thumbnailUrl: string | null;
   thumbnailColor: string;
   visible: boolean;
 }

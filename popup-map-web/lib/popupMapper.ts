@@ -47,6 +47,7 @@ export function mapPopupApiItem(popup: PopupApiItem, index = 0): Popup {
     entryFee: popup.entryFee ?? null,
     officialUrl: popup.officialUrl ?? null,
     reservationUrl: popup.reservationUrl ?? null,
+    thumbnailUrl: popup.thumbnailUrl ?? null,
     thumbnailColor: fallbackColors[index % fallbackColors.length],
     visible: popup.visible ?? true
   };

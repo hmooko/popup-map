@@ -18,7 +18,15 @@ export function SelectedPopupPanel({ popup }: SelectedPopupPanelProps) {
 
   return (
     <article className="selected-panel">
-      <div className="selected-image" style={{ background: popup.thumbnailColor }} />
+      <div className="selected-image" style={{ background: popup.thumbnailColor }}>
+        {popup.thumbnailUrl ? (
+          <img
+            className="selected-image-tag"
+            src={popup.thumbnailUrl}
+            alt={`${popup.title} 대표 이미지`}
+          />
+        ) : null}
+      </div>
       <div className="selected-panel-top">
         <div className="card-kicker">
           {categoryLabels[popup.category]} · {regionLabels[popup.region]}

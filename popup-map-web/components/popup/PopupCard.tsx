@@ -17,7 +17,15 @@ export function PopupCard({ popup, selected, onSelect }: PopupCardProps) {
       type="button"
       onClick={() => onSelect(popup)}
     >
-      <div className="popup-thumb" style={{ background: popup.thumbnailColor }} />
+      <div className="popup-thumb" style={{ background: popup.thumbnailColor }}>
+        {popup.thumbnailUrl ? (
+          <img
+            className="popup-thumb-image"
+            src={popup.thumbnailUrl}
+            alt={`${popup.title} 썸네일`}
+          />
+        ) : null}
+      </div>
       <div className="popup-card-body">
         <div className="card-kicker">
           {categoryLabels[popup.category]} · {regionLabels[popup.region]}

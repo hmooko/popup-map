@@ -747,7 +747,15 @@ export default function AdminPopupNewPage() {
 
           <aside className="preview-panel">
             <h2>편집 미리보기</h2>
-            <div className="preview-image" />
+            <div className="preview-image">
+              {form.thumbnailUrl ? (
+                <img
+                  className="preview-image-tag"
+                  src={form.thumbnailUrl}
+                  alt={form.title ? `${form.title} 미리보기 이미지` : "팝업 미리보기 이미지"}
+                />
+              ) : null}
+            </div>
             <strong>{form.title || "팝업명"}</strong>
             <span>{previewMeta}</span>
             <span>{form.detailAddress ? `${form.address} ${form.detailAddress}` : form.address}</span>

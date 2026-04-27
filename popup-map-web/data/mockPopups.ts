@@ -21,6 +21,7 @@ export const mockPopups: Popup[] = [
     entryFee: null,
     officialUrl: "https://example.com",
     reservationUrl: null,
+    thumbnailUrl: null,
     thumbnailColor: "#FDE68A",
     visible: true
   },
@@ -44,6 +45,7 @@ export const mockPopups: Popup[] = [
     entryFee: null,
     officialUrl: "https://example.com",
     reservationUrl: "https://example.com/reservation",
+    thumbnailUrl: null,
     thumbnailColor: "#BFDBFE",
     visible: true
   },
@@ -67,6 +69,7 @@ export const mockPopups: Popup[] = [
     entryFee: 5000,
     officialUrl: "https://example.com",
     reservationUrl: null,
+    thumbnailUrl: null,
     thumbnailColor: "#FBCFE8",
     visible: true
   },
@@ -90,6 +93,7 @@ export const mockPopups: Popup[] = [
     entryFee: 12000,
     officialUrl: "https://example.com",
     reservationUrl: "https://example.com/reservation",
+    thumbnailUrl: null,
     thumbnailColor: "#FED7AA",
     visible: true
   }

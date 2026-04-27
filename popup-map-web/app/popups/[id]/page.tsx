@@ -110,7 +110,15 @@ export default async function PopupDetailPage({ params }: PopupDetailPageProps) 
       </header>
 
       <section className="detail-hero">
-        <div className="detail-hero-image" style={{ background: popup.thumbnailColor }} />
+        <div className="detail-hero-image" style={{ background: popup.thumbnailColor }}>
+          {popup.thumbnailUrl ? (
+            <img
+              className="detail-hero-image-tag"
+              src={popup.thumbnailUrl}
+              alt={`${popup.title} 대표 이미지`}
+            />
+          ) : null}
+        </div>
         <div className="detail-summary">
           <div className="detail-summary-top">
             <div className="card-kicker">
