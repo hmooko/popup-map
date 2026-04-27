@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -102,14 +103,18 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
     @Query("""
             select p
             from Popup p
-            where (
-                :keyword is null
-                or lower(p.title) like lower(concat('%', :keyword, '%'))
-                or lower(p.brandName) like lower(concat('%', :keyword, '%'))
-                or lower(p.address) like lower(concat('%', :keyword, '%'))
-                or lower(coalesce(p.detailAddress, '')) like lower(concat('%', :keyword, '%'))
-            )
+            where lower(p.title) like lower(concat('%', :keyword, '%'))
+               or lower(p.brandName) like lower(concat('%', :keyword, '%'))
+               or lower(p.address) like lower(concat('%', :keyword, '%'))
+               or lower(coalesce(p.detailAddress, '')) like lower(concat('%', :keyword, '%'))
             order by p.updatedAt desc, p.createdAt desc
             """)
     List<Popup> searchAdminPopups(@Param("keyword") String keyword);
+
+    default List<Popup> findAllAdminPopups() {
+        return findAll(Sort.by(
+                Sort.Order.desc("updatedAt"),
+                Sort.Order.desc("createdAt")
+        ));
+    }
 }

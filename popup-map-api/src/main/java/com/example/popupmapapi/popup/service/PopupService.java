@@ -103,7 +103,11 @@ public class PopupService {
 
     public List<AdminPopupResponse> getAdminPopups(String keyword) {
         String normalizedKeyword = blankToNull(keyword);
-        return popupRepository.searchAdminPopups(normalizedKeyword).stream()
+        List<Popup> popups = normalizedKeyword == null
+                ? popupRepository.findAllAdminPopups()
+                : popupRepository.searchAdminPopups(normalizedKeyword);
+
+        return popups.stream()
                 .map(AdminPopupResponse::from)
                 .toList();
     }
