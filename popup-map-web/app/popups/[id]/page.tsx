@@ -80,6 +80,39 @@ export default async function PopupDetailPage({ params }: PopupDetailPageProps) 
             />
           </div>
           <h1>{popup.title}</h1>
+          <div className="detail-meta-list" aria-label="팝업 상세 정보">
+            <div className="detail-meta-item">
+              <CalendarDays size={16} />
+              <div>
+                <span>운영 기간</span>
+                <strong>
+                  {popup.startDate} - {popup.endDate}
+                </strong>
+              </div>
+            </div>
+            <div className="detail-meta-item">
+              <Clock size={16} />
+              <div>
+                <span>운영 시간</span>
+                <strong>{popup.openingHours}</strong>
+              </div>
+            </div>
+            <div className="detail-meta-item">
+              <Ticket size={16} />
+              <div>
+                <span>입장</span>
+                <strong>{popup.freeAdmission ? "무료" : `${popup.entryFee?.toLocaleString()}원`}</strong>
+              </div>
+            </div>
+            <div className="detail-meta-item">
+              <MapPin size={16} />
+              <div>
+                <span>주소</span>
+                <strong>{popup.address}</strong>
+                {popup.detailAddress ? <small>{popup.detailAddress}</small> : null}
+              </div>
+            </div>
+          </div>
           <p>{popup.description}</p>
           <div className="detail-action-row">
             {popup.reservationUrl ? (
@@ -96,32 +129,6 @@ export default async function PopupDetailPage({ params }: PopupDetailPageProps) 
               </a>
             ) : null}
           </div>
-        </div>
-      </section>
-
-      <section className="detail-info-grid" aria-label="팝업 상세 정보">
-        <div className="detail-info-card">
-          <CalendarDays size={18} />
-          <span>운영 기간</span>
-          <strong>
-            {popup.startDate} - {popup.endDate}
-          </strong>
-        </div>
-        <div className="detail-info-card">
-          <Clock size={18} />
-          <span>운영 시간</span>
-          <strong>{popup.openingHours}</strong>
-        </div>
-        <div className="detail-info-card">
-          <Ticket size={18} />
-          <span>입장</span>
-          <strong>{popup.freeAdmission ? "무료" : `${popup.entryFee?.toLocaleString()}원`}</strong>
-        </div>
-        <div className="detail-info-card">
-          <MapPin size={18} />
-          <span>주소</span>
-          <strong>{popup.address}</strong>
-          {popup.detailAddress ? <small>{popup.detailAddress}</small> : null}
         </div>
       </section>
     </main>
