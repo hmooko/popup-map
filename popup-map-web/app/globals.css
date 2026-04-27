@@ -152,8 +152,19 @@ a {
   font-weight: 800;
 }
 
+.api-state p {
+  margin: 0;
+  color: #78350f;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 .api-state.connected span {
   color: var(--green);
+}
+
+.api-state.connected p {
+  color: #166534;
 }
 
 .api-state strong {
@@ -626,6 +637,29 @@ input:disabled {
   grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
   gap: 24px;
   margin-top: 24px;
+}
+
+.detail-error-card {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+}
+
+.detail-error-card h1,
+.detail-error-card p {
+  margin: 0;
+}
+
+.detail-error-card p {
+  color: #7f1d1d;
+}
+
+.detail-error-action {
+  width: fit-content;
 }
 
 .detail-hero-image,

@@ -9,11 +9,12 @@ interface PopupListProps {
   popups: Popup[];
   selectedPopup: Popup | null;
   onSelect: (popup: Popup) => void;
+  emptyMessage?: string;
 }
 
 type SheetState = "collapsed" | "full";
 
-export function PopupList({ popups, selectedPopup, onSelect }: PopupListProps) {
+export function PopupList({ popups, selectedPopup, onSelect, emptyMessage }: PopupListProps) {
   const [sheetState, setSheetState] = useState<SheetState>("collapsed");
   const dragStartYRef = useRef<number | null>(null);
   const dragMovedRef = useRef(false);
@@ -100,7 +101,7 @@ export function PopupList({ popups, selectedPopup, onSelect }: PopupListProps) {
             />
           ))
         ) : (
-          <div className="empty-state">조건에 맞는 팝업이 없습니다.</div>
+          <div className="empty-state">{emptyMessage ?? "조건에 맞는 팝업이 없습니다."}</div>
         )}
       </div>
     </section>

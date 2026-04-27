@@ -1,7 +1,6 @@
 import { ArrowLeft, CalendarDays, Clock, ExternalLink, MapPin, Ticket } from "lucide-react";
 import { notFound } from "next/navigation";
 import { ShareLinkButton } from "@/components/common/ShareLinkButton";
-import { mockPopups } from "@/data/mockPopups";
 import { categoryLabels, regionLabels } from "@/lib/labels";
 import { mapPopupApiItem, type PopupApiItem } from "@/lib/popupMapper";
 import type { Popup } from "@/types/popup";
@@ -17,7 +16,12 @@ interface PopupDetailPageProps {
   }>;
 }
 
-async function fetchPopup(id: number): Promise<Popup | null> {
+type PopupFetchResult =
+  | { status: "success"; popup: Popup }
+  | { status: "not_found" }
+  | { status: "error"; message: string };
+
+async function fetchPopup(id: number): Promise<PopupFetchResult> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/popups/${id}`, {
       headers: {
@@ -26,14 +30,30 @@ async function fetchPopup(id: number): Promise<Popup | null> {
       cache: "no-store"
     });
 
+    if (response.status === 404) {
+      return { status: "not_found" };
+    }
+
     if (!response.ok) {
-      throw new Error(`팝업 상세 조회 실패: ${response.status}`);
+      return {
+        status: "error",
+        message: `팝업 상세 정보를 불러오지 못했습니다. (${response.status})`
+      };
     }
 
     const popup = (await response.json()) as PopupApiItem;
-    return mapPopupApiItem(popup, id);
-  } catch {
-    return mockPopups.find((popup) => popup.id === id) ?? null;
+    return {
+      status: "success",
+      popup: mapPopupApiItem(popup, id)
+    };
+  } catch (error) {
+    return {
+      status: "error",
+      message:
+        error instanceof Error
+          ? error.message
+          : "팝업 상세 정보를 불러오지 못했습니다."
+    };
   }
 }
 
@@ -45,11 +65,37 @@ export default async function PopupDetailPage({ params }: PopupDetailPageProps) 
     notFound();
   }
 
-  const popup = await fetchPopup(popupId);
+  const popupResult = await fetchPopup(popupId);
 
-  if (!popup) {
+  if (popupResult.status === "not_found") {
     notFound();
   }
+
+  if (popupResult.status === "error") {
+    return (
+      <main className="detail-shell">
+        <header className="detail-header">
+          <a className="back-link" href="/">
+            <ArrowLeft size={16} />
+            목록으로
+          </a>
+          <a className="brand" href="/">
+            Popup Map
+          </a>
+        </header>
+
+        <section className="detail-error-card">
+          <h1>상세 정보를 불러오지 못했습니다.</h1>
+          <p>{popupResult.message}</p>
+          <a className="primary-action detail-error-action" href="/">
+            메인으로 돌아가기
+          </a>
+        </section>
+      </main>
+    );
+  }
+
+  const { popup } = popupResult;
 
   return (
     <main className="detail-shell">

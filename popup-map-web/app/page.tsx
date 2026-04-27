@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MapPanel } from "@/components/map/MapPanel";
 import { FilterBar } from "@/components/popup/FilterBar";
 import { PopupList } from "@/components/popup/PopupList";
-import { mockPopups } from "@/data/mockPopups";
 import { fetchMapPopupIds, fetchPopups, getApiBaseUrl, type MapBounds } from "@/lib/api";
 import type { Popup, PopupFilters } from "@/types/popup";
 
@@ -24,10 +23,11 @@ export default function Home() {
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<PopupFilters>(initialFilters);
   const [query, setQuery] = useState("");
-  const [allPopups, setAllPopups] = useState<Popup[]>(mockPopups);
+  const [allPopups, setAllPopups] = useState<Popup[]>([]);
   const [visiblePopupIds, setVisiblePopupIds] = useState<number[] | null>(null);
   const [selectedPopup, setSelectedPopup] = useState<Popup | null>(null);
-  const [apiState, setApiState] = useState<"loading" | "connected" | "fallback">("loading");
+  const [apiState, setApiState] = useState<"loading" | "connected" | "error">("loading");
+  const [apiMessage, setApiMessage] = useState("팝업 목록을 불러오는 중입니다.");
   const [mapSearchLoading, setMapSearchLoading] = useState(false);
 
   useEffect(() => {
@@ -42,15 +42,22 @@ export default function Home() {
         setAllPopups(apiPopups);
         setSelectedPopup(null);
         setApiState("connected");
+        setApiMessage("실시간 API 데이터를 불러왔습니다.");
       })
-      .catch(() => {
+      .catch((error) => {
         if (!active) {
           return;
         }
 
-        setAllPopups(mockPopups);
+        const nextMessage =
+          error instanceof Error
+            ? error.message
+            : "팝업 API에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.";
+
+        setAllPopups([]);
         setSelectedPopup(null);
-        setApiState("fallback");
+        setApiState("error");
+        setApiMessage(nextMessage);
       });
 
     return () => {
@@ -156,6 +163,12 @@ export default function Home() {
     selectedPopup && filteredPopups.some((popup) => popup.id === selectedPopup.id)
       ? selectedPopup
       : null;
+  const emptyMessage =
+    apiState === "loading"
+      ? "팝업을 불러오는 중입니다."
+      : apiState === "error"
+        ? "팝업 API에 연결하지 못했습니다."
+        : "조건에 맞는 팝업이 없습니다.";
 
   return (
     <main className="app-shell">
@@ -209,8 +222,18 @@ export default function Home() {
 
       <div className="main-grid">
         <aside className="side-panel">
-          <div className={apiState === "connected" ? "api-state connected" : "api-state"}>
-            <span>{apiState === "connected" ? "API 연결됨" : "mock 데이터 사용 중"}</span>
+          <div
+            className={apiState === "connected" ? "api-state connected" : "api-state"}
+            role="status"
+          >
+            <span>
+              {apiState === "connected"
+                ? "API 연결됨"
+                : apiState === "loading"
+                  ? "API 연결 확인 중"
+                  : "API 연결 실패"}
+            </span>
+            <p>{apiMessage}</p>
             <strong>{getApiBaseUrl()}</strong>
           </div>
           <FilterBar filters={filters} onChange={setFilters} />
@@ -218,6 +241,7 @@ export default function Home() {
             popups={filteredPopups}
             selectedPopup={visibleSelectedPopup}
             onSelect={handleSelect}
+            emptyMessage={emptyMessage}
           />
         </aside>
         <MapPanel
