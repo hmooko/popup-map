@@ -160,6 +160,10 @@ export function MapPanel({
     onSearchInView(bounds);
   }
 
+  function clearOpenedPopup() {
+    setOpenedPopupId(null);
+  }
+
   function moveMapToCurrentLocation() {
     return new Promise<boolean>((resolve) => {
       if (!navigator.geolocation || !window.kakao?.maps || !mapRef.current) {
@@ -245,7 +249,7 @@ export function MapPanel({
     popups.forEach((popup, index) => {
       const markerButton = document.createElement("button");
       markerButton.className =
-        selectedPopup?.id === popup.id ? "map-marker kakao-marker selected" : "map-marker kakao-marker";
+        openedPopupId === popup.id ? "map-marker kakao-marker selected" : "map-marker kakao-marker";
       markerButton.type = "button";
       markerButton.title = popup.title;
       markerButton.textContent = String(index + 1);
@@ -269,7 +273,7 @@ export function MapPanel({
       overlaysRef.current.forEach((overlay) => overlay.setMap(null));
       overlaysRef.current = [];
     };
-  }, [onSelect, popups, sdkState, selectedPopup?.id]);
+  }, [onSelect, openedPopupId, popups, sdkState]);
 
   function zoomIn() {
     if (!mapRef.current) {
@@ -298,8 +302,19 @@ export function MapPanel({
   if (kakaoMapKey && sdkState !== "fallback") {
     return (
       <section className="map-panel real-map-panel" aria-label="팝업 지도">
-        <div className="kakao-map-canvas" ref={mapContainerRef} />
-        <div className="map-toolbar">
+        <div
+          className="kakao-map-canvas"
+          ref={mapContainerRef}
+          onClick={(event) => {
+            const target = event.target as HTMLElement;
+            if (target.closest(".map-marker")) {
+              return;
+            }
+
+            clearOpenedPopup();
+          }}
+        />
+        <div className="map-toolbar" onClick={(event) => event.stopPropagation()}>
           <button
             className="map-search-button"
             type="button"
@@ -331,7 +346,7 @@ export function MapPanel({
         </div>
 
         {openedPopup ? (
-          <div className="map-floating-card">
+          <div className="map-floating-card" onClick={(event) => event.stopPropagation()}>
             <SelectedPopupPanel popup={openedPopup} />
           </div>
         ) : null}
@@ -348,8 +363,8 @@ export function MapPanel({
   }
 
   return (
-    <section className="map-panel" aria-label="팝업 지도">
-      <div className="map-toolbar">
+    <section className="map-panel" aria-label="팝업 지도" onClick={clearOpenedPopup}>
+      <div className="map-toolbar" onClick={(event) => event.stopPropagation()}>
         <button className="map-search-button" type="button">
           <Crosshair size={15} />
           이 구역 재검색
@@ -358,9 +373,9 @@ export function MapPanel({
           <button type="button" title="현재 위치">
             <LocateFixed size={17} />
           </button>
-        <button type="button" title="지도 경계 새로고침">
-          <RefreshCw size={17} />
-        </button>
+          <button type="button" title="지도 경계 새로고침">
+            <RefreshCw size={17} />
+          </button>
           <button type="button" title="확대">
             <ZoomIn size={17} />
           </button>
@@ -379,7 +394,7 @@ export function MapPanel({
 
       {popups.map((popup, index) => {
         const position = markerPositions[index % markerPositions.length];
-        const selected = selectedPopup?.id === popup.id;
+        const selected = openedPopupId === popup.id;
 
         return (
           <button
@@ -387,7 +402,8 @@ export function MapPanel({
             className={selected ? "map-marker selected" : "map-marker"}
             style={position}
             type="button"
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
               onSelect(popup);
               setOpenedPopupId(popup.id);
             }}
@@ -399,7 +415,7 @@ export function MapPanel({
       })}
 
       {openedPopup ? (
-        <div className="map-floating-card">
+        <div className="map-floating-card" onClick={(event) => event.stopPropagation()}>
           <SelectedPopupPanel popup={openedPopup} />
         </div>
       ) : null}
