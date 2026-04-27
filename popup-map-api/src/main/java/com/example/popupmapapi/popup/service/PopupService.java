@@ -61,16 +61,17 @@ public class PopupService {
                 today,
                 today.plusDays(CLOSING_SOON_DAYS),
                 pageable
-        ).map(PopupListItemResponse::from));
+        ).map(popup -> PopupListItemResponse.from(popup, today)));
     }
 
     public PopupDetailResponse getPopup(Long popupId) {
+        LocalDate today = LocalDate.now();
         Popup popup = popupRepository.findByIdAndVisibleTrue(popupId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "팝업을 찾을 수 없습니다."));
-        if (popup.getEndDate().isBefore(LocalDate.now())) {
+        if (popup.getEndDate().isBefore(today)) {
             throw new BusinessException(ErrorCode.NOT_FOUND, "팝업을 찾을 수 없습니다.");
         }
-        return PopupDetailResponse.from(popup);
+        return PopupDetailResponse.from(popup, today);
     }
 
     public List<PopupMapItemResponse> getMapPopups(

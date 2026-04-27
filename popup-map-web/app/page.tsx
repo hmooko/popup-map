@@ -7,7 +7,6 @@ import { FilterBar } from "@/components/popup/FilterBar";
 import { PopupList } from "@/components/popup/PopupList";
 import { mockPopups } from "@/data/mockPopups";
 import { fetchMapPopupIds, fetchPopups, getApiBaseUrl, type MapBounds } from "@/lib/api";
-import { getPopupStatus, isOpenToday } from "@/lib/popupStatus";
 import type { Popup, PopupFilters } from "@/types/popup";
 
 const initialFilters: PopupFilters = {
@@ -82,10 +81,9 @@ export default function Home() {
 
     return popups
       .filter((popup) => popup.visible)
-      .filter((popup) => isOpenToday(popup))
       .filter((popup) => filters.region === "ALL" || popup.region === filters.region)
       .filter((popup) => filters.category === "ALL" || popup.category === filters.category)
-      .filter((popup) => filters.status === "ALL" || getPopupStatus(popup) === filters.status)
+      .filter((popup) => filters.status === "ALL" || popup.status === filters.status)
       .filter((popup) => !filters.freeOnly || popup.freeAdmission)
       .filter((popup) => !filters.reservationFreeOnly || !popup.reservationRequired)
       .filter((popup) => {

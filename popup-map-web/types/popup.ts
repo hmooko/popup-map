@@ -22,6 +22,7 @@ export interface Popup {
   id: number;
   title: string;
   brandName: string;
+  status: PopupStatus;
   description: string;
   category: Category;
   region: Region;

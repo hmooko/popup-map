@@ -30,7 +30,11 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
                     :status is null
                     or (:status = 'ONGOING' and p.startDate <= :today and p.endDate >= :today)
                     or (:status = 'UPCOMING' and p.startDate > :today)
-                    or (:status = 'CLOSING_SOON' and p.endDate between :today and :closingSoonDate)
+                    or (
+                        :status = 'CLOSING_SOON'
+                        and p.startDate <= :today
+                        and p.endDate between :today and :closingSoonDate
+                    )
               )
             order by
               case when p.startDate <= :today and p.endDate >= :today then 0 else 1 end,

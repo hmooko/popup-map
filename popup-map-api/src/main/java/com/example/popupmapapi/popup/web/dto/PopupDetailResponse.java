@@ -2,6 +2,7 @@ package com.example.popupmapapi.popup.web.dto;
 
 import com.example.popupmapapi.popup.domain.Category;
 import com.example.popupmapapi.popup.domain.Popup;
+import com.example.popupmapapi.popup.domain.PopupStatus;
 import com.example.popupmapapi.popup.domain.Region;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,9 +26,10 @@ public record PopupDetailResponse(
         Integer entryFee,
         String officialUrl,
         String reservationUrl,
-        String thumbnailUrl
+        String thumbnailUrl,
+        PopupStatus status
 ) {
-    public static PopupDetailResponse from(Popup popup) {
+    public static PopupDetailResponse from(Popup popup, LocalDate today) {
         return new PopupDetailResponse(
                 popup.getId(),
                 popup.getTitle(),
@@ -47,7 +49,8 @@ public record PopupDetailResponse(
                 popup.getEntryFee(),
                 popup.getOfficialUrl(),
                 popup.getReservationUrl(),
-                popup.getThumbnailUrl()
+                popup.getThumbnailUrl(),
+                PopupStatus.from(popup.getStartDate(), popup.getEndDate(), today)
         );
     }
 }

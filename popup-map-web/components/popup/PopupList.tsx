@@ -83,8 +83,8 @@ export function PopupList({ popups, selectedPopup, onSelect }: PopupListProps) {
 
       <div className="section-heading">
         <div>
-          <h2>오늘 갈 수 있는 팝업</h2>
-          <p>서울 주요 상권에서 운영 중인 팝업스토어를 빠르게 확인하세요.</p>
+          <h2>지금 확인할 팝업</h2>
+          <p>서울 주요 상권의 운영 중이거나 오픈 예정인 팝업스토어를 확인하세요.</p>
         </div>
         <span>{popups.length}개</span>
       </div>
