@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createProxyErrorResponse } from "../../_lib/proxy";
 
 const API_BASE_URL =
   process.env.POPUP_MAP_API_BASE_URL ??
@@ -15,10 +16,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   const authorization = request.headers.get("authorization");
   const body = await request.text();
   const { popupId } = await context.params;
+  const targetUrl = `${API_BASE_URL}/api/v1/admin/popups/${encodeURIComponent(popupId)}`;
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/admin/popups/${encodeURIComponent(popupId)}`,
-    {
+  try {
+    const response = await fetch(targetUrl, {
       method: "PATCH",
       headers: {
         Accept: "application/json",
@@ -27,41 +28,45 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       },
       body,
       cache: "no-store"
-    }
-  );
+    });
 
-  const responseBody = await response.text();
+    const responseBody = await response.text();
 
-  return new NextResponse(responseBody, {
-    status: response.status,
-    headers: {
-      "Content-Type": response.headers.get("content-type") ?? "application/json"
-    }
-  });
+    return new NextResponse(responseBody, {
+      status: response.status,
+      headers: {
+        "Content-Type": response.headers.get("content-type") ?? "application/json"
+      }
+    });
+  } catch (error) {
+    return createProxyErrorResponse(error, targetUrl);
+  }
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   const authorization = request.headers.get("authorization");
   const { popupId } = await context.params;
+  const targetUrl = `${API_BASE_URL}/api/v1/admin/popups/${encodeURIComponent(popupId)}`;
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/admin/popups/${encodeURIComponent(popupId)}`,
-    {
+  try {
+    const response = await fetch(targetUrl, {
       method: "DELETE",
       headers: {
         Accept: "application/json",
         ...(authorization ? { Authorization: authorization } : {})
       },
       cache: "no-store"
-    }
-  );
+    });
 
-  const responseBody = await response.text();
+    const responseBody = await response.text();
 
-  return new NextResponse(responseBody, {
-    status: response.status,
-    headers: {
-      "Content-Type": response.headers.get("content-type") ?? "application/json"
-    }
-  });
+    return new NextResponse(responseBody, {
+      status: response.status,
+      headers: {
+        "Content-Type": response.headers.get("content-type") ?? "application/json"
+      }
+    });
+  } catch (error) {
+    return createProxyErrorResponse(error, targetUrl);
+  }
 }

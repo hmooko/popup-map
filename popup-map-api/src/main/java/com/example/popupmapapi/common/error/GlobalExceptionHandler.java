@@ -2,8 +2,8 @@ package com.example.popupmapapi.common.error;
 
 import java.util.List;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
@@ -35,5 +35,15 @@ public class GlobalExceptionHandler {
                 .toList();
         return ResponseEntity.badRequest()
                 .body(ErrorResponse.of(ErrorCode.INVALID_REQUEST, ErrorCode.INVALID_REQUEST.message(), errors));
+    }
+
+    @ExceptionHandler(Exception.class)
+    ResponseEntity<ErrorResponse> handleUnhandledException(Exception exception) {
+        String detail = exception.getMessage() == null || exception.getMessage().isBlank()
+                ? exception.getClass().getSimpleName()
+                : exception.getClass().getSimpleName() + ": " + exception.getMessage();
+
+        return ResponseEntity.internalServerError()
+                .body(ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR, detail, List.of()));
     }
 }
