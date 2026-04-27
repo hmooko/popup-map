@@ -135,17 +135,15 @@ function HomeContent() {
       const requestedPopup = filteredPopups.find((popup) => popup.id === requestedPopupId);
 
       if (requestedPopup) {
-        if (selectedPopup?.id !== requestedPopup.id) {
-          setSelectedPopup(requestedPopup);
-        }
+        setSelectedPopup((current) => (current?.id === requestedPopup.id ? current : requestedPopup));
         return;
       }
     }
 
-    if (!selectedPopup || !filteredPopups.some((popup) => popup.id === selectedPopup.id)) {
-      setSelectedPopup(filteredPopups[0]);
-    }
-  }, [filteredPopups, requestedPopupId, selectedPopup]);
+    setSelectedPopup((current) =>
+      current && filteredPopups.some((popup) => popup.id === current.id) ? current : filteredPopups[0]
+    );
+  }, [filteredPopups, requestedPopupId]);
 
   useEffect(() => {
     const currentPopupId = searchParams.get("popupId");
