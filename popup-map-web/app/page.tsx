@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MapPanel } from "@/components/map/MapPanel";
@@ -18,6 +18,26 @@ const initialFilters: PopupFilters = {
 };
 
 export default function Home() {
+  return (
+    <Suspense fallback={<HomeFallback />}>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+function HomeFallback() {
+  return (
+    <main className="app-shell">
+      <header className="top-header">
+        <a className="brand" href="/">
+          Popup Map
+        </a>
+      </header>
+    </main>
+  );
+}
+
+function HomeContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
