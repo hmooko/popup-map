@@ -922,6 +922,8 @@ input:disabled {
   }
 
   .top-header {
+    align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
     min-height: auto;
     padding: 16px 16px 12px;
@@ -939,16 +941,24 @@ input:disabled {
     font-size: 22px;
   }
 
+  .brand {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
   .search-box {
     order: 3;
     flex: none;
     height: 44px;
+    width: 100%;
+    min-width: 0;
     border: 1px solid var(--line);
     border-radius: 14px;
     background: var(--surface);
   }
 
   .admin-link {
+    flex: 0 0 auto;
     min-height: 36px;
     padding: 0 12px;
     border-radius: 999px;
