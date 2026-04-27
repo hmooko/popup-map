@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Crosshair, LocateFixed, RefreshCw, ZoomIn, ZoomOut } from "lucide-react";
+import type { MapBounds } from "@/lib/api";
 import { regionLabels } from "@/lib/labels";
 import type { Popup } from "@/types/popup";
 import { SelectedPopupPanel } from "@/components/popup/SelectedPopupPanel";
@@ -10,6 +11,8 @@ interface MapPanelProps {
   popups: Popup[];
   selectedPopup: Popup | null;
   onSelect: (popup: Popup) => void;
+  onSearchInView: (bounds: MapBounds) => void;
+  searchInViewLoading: boolean;
 }
 
 const markerPositions = [
@@ -42,10 +45,21 @@ interface KakaoMapApi {
 }
 
 interface KakaoMapInstance {
+  getBounds: () => KakaoBoundsInstance;
   setCenter: (position: unknown) => void;
   setLevel: (level: number) => void;
   getLevel: () => number;
   relayout: () => void;
+}
+
+interface KakaoBoundsInstance {
+  getSouthWest: () => KakaoLatLngInstance;
+  getNorthEast: () => KakaoLatLngInstance;
+}
+
+interface KakaoLatLngInstance {
+  getLat: () => number;
+  getLng: () => number;
 }
 
 interface KakaoOverlayInstance {
@@ -89,10 +103,17 @@ function loadKakaoMapSdk(appKey: string) {
   });
 }
 
-export function MapPanel({ popups, selectedPopup, onSelect }: MapPanelProps) {
+export function MapPanel({
+  popups,
+  selectedPopup,
+  onSelect,
+  onSearchInView,
+  searchInViewLoading
+}: MapPanelProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<KakaoMapInstance | null>(null);
   const overlaysRef = useRef<KakaoOverlayInstance[]>([]);
+  const hasRequestedInitialBoundsRef = useRef(false);
   const [openedPopupId, setOpenedPopupId] = useState<number | null>(null);
   const [sdkState, setSdkState] = useState<"idle" | "ready" | "fallback">(
     kakaoMapKey ? "idle" : "fallback"
@@ -112,6 +133,56 @@ export function MapPanel({ popups, selectedPopup, onSelect }: MapPanelProps) {
   useEffect(() => {
     setOpenedPopupId(selectedPopup?.id ?? null);
   }, [selectedPopup]);
+
+  function getCurrentBounds(): MapBounds | null {
+    if (!mapRef.current) {
+      return null;
+    }
+
+    const bounds = mapRef.current.getBounds();
+    const southWest = bounds.getSouthWest();
+    const northEast = bounds.getNorthEast();
+
+    return {
+      southWestLat: southWest.getLat(),
+      southWestLng: southWest.getLng(),
+      northEastLat: northEast.getLat(),
+      northEastLng: northEast.getLng()
+    };
+  }
+
+  function requestSearchInView() {
+    const bounds = getCurrentBounds();
+    if (!bounds) {
+      return;
+    }
+
+    onSearchInView(bounds);
+  }
+
+  function moveMapToCurrentLocation() {
+    return new Promise<boolean>((resolve) => {
+      if (!navigator.geolocation || !window.kakao?.maps || !mapRef.current) {
+        resolve(false);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          mapRef.current?.setCenter(
+            new window.kakao!.maps.LatLng(position.coords.latitude, position.coords.longitude)
+          );
+          resolve(true);
+        },
+        () => resolve(false),
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    });
+  }
 
   useEffect(() => {
     if (!kakaoMapKey || !mapContainerRef.current) {
@@ -148,6 +219,18 @@ export function MapPanel({ popups, selectedPopup, onSelect }: MapPanelProps) {
       active = false;
     };
   }, [popups]);
+
+  useEffect(() => {
+    if (sdkState !== "ready" || hasRequestedInitialBoundsRef.current) {
+      return;
+    }
+
+    hasRequestedInitialBoundsRef.current = true;
+    void (async () => {
+      await moveMapToCurrentLocation();
+      requestSearchInView();
+    })();
+  }, [sdkState]);
 
   useEffect(() => {
     if (sdkState !== "ready" || !mapRef.current || !window.kakao?.maps) {
@@ -205,15 +288,7 @@ export function MapPanel({ popups, selectedPopup, onSelect }: MapPanelProps) {
   }
 
   function moveToCurrentLocation() {
-    if (!navigator.geolocation || !window.kakao?.maps || !mapRef.current) {
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition((position) => {
-      mapRef.current?.setCenter(
-        new window.kakao!.maps.LatLng(position.coords.latitude, position.coords.longitude)
-      );
-    });
+    void moveMapToCurrentLocation();
   }
 
   function relayoutMap() {
@@ -225,18 +300,29 @@ export function MapPanel({ popups, selectedPopup, onSelect }: MapPanelProps) {
       <section className="map-panel real-map-panel" aria-label="팝업 지도">
         <div className="kakao-map-canvas" ref={mapContainerRef} />
         <div className="map-toolbar">
-          <button type="button" title="현재 위치" onClick={moveToCurrentLocation}>
-            <LocateFixed size={17} />
+          <button
+            className="map-search-button"
+            type="button"
+            onClick={requestSearchInView}
+            disabled={searchInViewLoading}
+          >
+            <Crosshair size={15} />
+            {searchInViewLoading ? "불러오는 중" : "이 구역 재검색"}
           </button>
-          <button type="button" title="지도 새로고침" onClick={relayoutMap}>
-            <RefreshCw size={17} />
-          </button>
-          <button type="button" title="확대" onClick={zoomIn}>
-            <ZoomIn size={17} />
-          </button>
-          <button type="button" title="축소" onClick={zoomOut}>
-            <ZoomOut size={17} />
-          </button>
+          <div className="map-toolbar-actions">
+            <button type="button" title="현재 위치" onClick={moveToCurrentLocation}>
+              <LocateFixed size={17} />
+            </button>
+            <button type="button" title="지도 새로고침" onClick={relayoutMap}>
+              <RefreshCw size={17} />
+            </button>
+            <button type="button" title="확대" onClick={zoomIn}>
+              <ZoomIn size={17} />
+            </button>
+            <button type="button" title="축소" onClick={zoomOut}>
+              <ZoomOut size={17} />
+            </button>
+          </div>
         </div>
 
         <div className="map-region-label">
@@ -264,18 +350,24 @@ export function MapPanel({ popups, selectedPopup, onSelect }: MapPanelProps) {
   return (
     <section className="map-panel" aria-label="팝업 지도">
       <div className="map-toolbar">
-        <button type="button" title="현재 위치">
-          <LocateFixed size={17} />
+        <button className="map-search-button" type="button">
+          <Crosshair size={15} />
+          이 구역 재검색
         </button>
+        <div className="map-toolbar-actions">
+          <button type="button" title="현재 위치">
+            <LocateFixed size={17} />
+          </button>
         <button type="button" title="지도 경계 새로고침">
           <RefreshCw size={17} />
         </button>
-        <button type="button" title="확대">
-          <ZoomIn size={17} />
-        </button>
-        <button type="button" title="축소">
-          <ZoomOut size={17} />
-        </button>
+          <button type="button" title="확대">
+            <ZoomIn size={17} />
+          </button>
+          <button type="button" title="축소">
+            <ZoomOut size={17} />
+          </button>
+        </div>
       </div>
 
       <div className="map-road horizontal" />

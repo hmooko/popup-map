@@ -393,11 +393,19 @@ input:disabled {
   z-index: 5;
   top: 16px;
   right: 16px;
+  left: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.map-toolbar-actions {
   display: flex;
   gap: 8px;
 }
 
-.map-toolbar button {
+.map-toolbar-actions button {
   display: grid;
   width: 38px;
   height: 38px;
@@ -407,6 +415,26 @@ input:disabled {
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
+}
+
+.map-search-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.map-search-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
 
 .map-road {
@@ -1026,8 +1054,15 @@ input:disabled {
   }
 
   .popup-list.sheet-collapsed {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 12;
     min-height: 0;
     max-height: none;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    border-radius: 24px 24px 0 0;
   }
 
   .sheet-handle {
@@ -1052,10 +1087,6 @@ input:disabled {
 
   .sheet-collapsed .section-heading {
     margin-bottom: 0;
-  }
-
-  .sheet-selected-card {
-    display: block;
   }
 
   .sheet-collapsed .section-heading p {
@@ -1089,7 +1120,6 @@ input:disabled {
 
   .api-state,
   .filter-panel,
-  .map-floating-card,
   .map-caption,
   .map-region-label {
     display: none;
@@ -1105,12 +1135,34 @@ input:disabled {
   .map-toolbar {
     top: 16px;
     right: 16px;
+    left: 16px;
   }
 
-  .map-toolbar button {
+  .map-toolbar-actions {
+    gap: 8px;
+  }
+
+  .map-toolbar-actions button {
     width: 32px;
     height: 32px;
     border-radius: 999px;
+  }
+
+  .map-search-button {
+    min-height: 32px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .map-floating-card {
+    display: block;
+    right: 16px;
+    bottom: calc(78px + env(safe-area-inset-bottom));
+    width: calc(100% - 32px);
+  }
+
+  .popup-list.sheet-collapsed {
+    box-shadow: 0 -12px 28px rgba(15, 23, 42, 0.12);
   }
 
   .popup-card {

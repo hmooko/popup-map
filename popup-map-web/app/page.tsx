@@ -6,7 +6,7 @@ import { MapPanel } from "@/components/map/MapPanel";
 import { FilterBar } from "@/components/popup/FilterBar";
 import { PopupList } from "@/components/popup/PopupList";
 import { mockPopups } from "@/data/mockPopups";
-import { fetchPopups, getApiBaseUrl } from "@/lib/api";
+import { fetchMapPopupIds, fetchPopups, getApiBaseUrl, type MapBounds } from "@/lib/api";
 import { getPopupStatus, isOpenToday } from "@/lib/popupStatus";
 import type { Popup, PopupFilters } from "@/types/popup";
 
@@ -21,9 +21,11 @@ const initialFilters: PopupFilters = {
 export default function Home() {
   const [filters, setFilters] = useState<PopupFilters>(initialFilters);
   const [query, setQuery] = useState("");
-  const [popups, setPopups] = useState<Popup[]>(mockPopups);
+  const [allPopups, setAllPopups] = useState<Popup[]>(mockPopups);
+  const [visiblePopupIds, setVisiblePopupIds] = useState<number[] | null>(null);
   const [selectedPopup, setSelectedPopup] = useState<Popup | null>(null);
   const [apiState, setApiState] = useState<"loading" | "connected" | "fallback">("loading");
+  const [mapSearchLoading, setMapSearchLoading] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -34,7 +36,7 @@ export default function Home() {
           return;
         }
 
-        setPopups(apiPopups);
+        setAllPopups(apiPopups);
         setSelectedPopup(null);
         setApiState("connected");
       })
@@ -43,7 +45,7 @@ export default function Home() {
           return;
         }
 
-        setPopups(mockPopups);
+        setAllPopups(mockPopups);
         setSelectedPopup(null);
         setApiState("fallback");
       });
@@ -52,6 +54,28 @@ export default function Home() {
       active = false;
     };
   }, []);
+
+  async function handleSearchInView(bounds: MapBounds) {
+    setMapSearchLoading(true);
+
+    try {
+      const popupIds = await fetchMapPopupIds(bounds);
+      setVisiblePopupIds(popupIds);
+    } catch {
+      setVisiblePopupIds(null);
+    } finally {
+      setMapSearchLoading(false);
+    }
+  }
+
+  const popups = useMemo(() => {
+    if (visiblePopupIds === null) {
+      return allPopups;
+    }
+
+    const idSet = new Set(visiblePopupIds);
+    return allPopups.filter((popup) => idSet.has(popup.id));
+  }, [allPopups, visiblePopupIds]);
 
   const filteredPopups = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -163,6 +187,8 @@ export default function Home() {
           popups={filteredPopups}
           selectedPopup={visibleSelectedPopup}
           onSelect={handleSelect}
+          onSearchInView={handleSearchInView}
+          searchInViewLoading={mapSearchLoading}
         />
       </div>
     </main>
