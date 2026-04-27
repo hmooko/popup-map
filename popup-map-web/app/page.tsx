@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MapPanel } from "@/components/map/MapPanel";
 import { FilterBar } from "@/components/popup/FilterBar";
 import { PopupList } from "@/components/popup/PopupList";
-import { fetchMapPopupIds, fetchPopups, getApiBaseUrl, type MapBounds } from "@/lib/api";
+import { fetchMapPopupIds, fetchPopups, type MapBounds } from "@/lib/api";
 import type { Popup, PopupFilters } from "@/types/popup";
 
 const initialFilters: PopupFilters = {
@@ -47,7 +47,6 @@ function HomeContent() {
   const [visiblePopupIds, setVisiblePopupIds] = useState<number[] | null>(null);
   const [selectedPopup, setSelectedPopup] = useState<Popup | null>(null);
   const [apiState, setApiState] = useState<"loading" | "connected" | "error">("loading");
-  const [apiMessage, setApiMessage] = useState("팝업 목록을 불러오는 중입니다.");
   const [mapSearchLoading, setMapSearchLoading] = useState(false);
 
   useEffect(() => {
@@ -62,22 +61,15 @@ function HomeContent() {
         setAllPopups(apiPopups);
         setSelectedPopup(null);
         setApiState("connected");
-        setApiMessage("실시간 API 데이터를 불러왔습니다.");
       })
-      .catch((error) => {
+      .catch(() => {
         if (!active) {
           return;
         }
 
-        const nextMessage =
-          error instanceof Error
-            ? error.message
-            : "팝업 API에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.";
-
         setAllPopups([]);
         setSelectedPopup(null);
         setApiState("error");
-        setApiMessage(nextMessage);
       });
 
     return () => {
@@ -238,20 +230,6 @@ function HomeContent() {
 
       <div className="main-grid">
         <aside className="side-panel">
-          <div
-            className={apiState === "connected" ? "api-state connected" : "api-state"}
-            role="status"
-          >
-            <span>
-              {apiState === "connected"
-                ? "API 연결됨"
-                : apiState === "loading"
-                  ? "API 연결 확인 중"
-                  : "API 연결 실패"}
-            </span>
-            <p>{apiMessage}</p>
-            <strong>{getApiBaseUrl()}</strong>
-          </div>
           <FilterBar filters={filters} onChange={setFilters} />
           <PopupList
             popups={filteredPopups}
