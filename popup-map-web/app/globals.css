@@ -295,6 +295,7 @@ input:disabled {
 
 .cards-stack {
   display: grid;
+  align-content: start;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
