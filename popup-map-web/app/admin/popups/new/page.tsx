@@ -81,6 +81,26 @@ interface ClassificationFormState {
   sortOrder: string;
 }
 
+interface BulkPopupPayload {
+  title: string;
+  brandName: string;
+  description?: string | null;
+  category: string;
+  region: string;
+  address: string;
+  detailAddress?: string | null;
+  startDate: string;
+  endDate: string;
+  openingHours: string;
+  reservationRequired: boolean;
+  freeAdmission: boolean;
+  entryFee?: number | null;
+  officialUrl?: string | null;
+  reservationUrl?: string | null;
+  thumbnailUrl?: string | null;
+  visible?: boolean;
+}
+
 const initialForm: PopupFormState = {
   title: "Ader Archive Popup",
   brandName: "Ader",
@@ -107,6 +127,28 @@ const initialClassificationForm: ClassificationFormState = {
   label: "",
   sortOrder: ""
 };
+
+const initialBulkJson = `[
+  {
+    "title": "Ader Archive Popup",
+    "brandName": "Ader",
+    "description": "아카이브 제품과 한정 굿즈를 경험할 수 있는 성수 브랜드 팝업입니다.",
+    "category": "FASHION",
+    "region": "SEONGSU",
+    "address": "서울 성동구 연무장길 00",
+    "detailAddress": "1층 팝업존",
+    "startDate": "2026-04-20",
+    "endDate": "2026-05-12",
+    "openingHours": "11:00-20:00",
+    "reservationRequired": false,
+    "freeAdmission": true,
+    "entryFee": null,
+    "officialUrl": "https://example.com",
+    "reservationUrl": null,
+    "thumbnailUrl": null,
+    "visible": true
+  }
+]`;
 
 function mapPopupToFormState(popup: AdminPopup): PopupFormState {
   return {
@@ -188,6 +230,11 @@ export default function AdminPopupNewPage() {
     "idle" | "loading" | "saving" | "error"
   >("idle");
   const [classificationManageMessage, setClassificationManageMessage] = useState("");
+  const [bulkJson, setBulkJson] = useState(initialBulkJson);
+  const [bulkSubmitStatus, setBulkSubmitStatus] = useState<"idle" | "saving" | "success" | "error">(
+    "idle"
+  );
+  const [bulkSubmitMessage, setBulkSubmitMessage] = useState("");
   const [deletingPopupId, setDeletingPopupId] = useState<number | null>(null);
   const [togglingPopupId, setTogglingPopupId] = useState<number | null>(null);
   const [deletingClassificationId, setDeletingClassificationId] = useState<number | null>(null);
@@ -714,6 +761,71 @@ export default function AdminPopupNewPage() {
     await loadAdminPopups(searchQuery);
   }
 
+  async function handleBulkSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!accessToken) {
+      setBulkSubmitStatus("error");
+      setBulkSubmitMessage("먼저 관리자 로그인을 완료해 주세요.");
+      return;
+    }
+
+    let payload: BulkPopupPayload[];
+
+    try {
+      const parsed = JSON.parse(bulkJson) as unknown;
+
+      if (!Array.isArray(parsed)) {
+        setBulkSubmitStatus("error");
+        setBulkSubmitMessage("JSON 배열 형태로 입력해 주세요.");
+        return;
+      }
+
+      if (parsed.length === 0) {
+        setBulkSubmitStatus("error");
+        setBulkSubmitMessage("최소 1개 이상의 팝업 객체가 필요합니다.");
+        return;
+      }
+
+      payload = parsed as BulkPopupPayload[];
+    } catch {
+      setBulkSubmitStatus("error");
+      setBulkSubmitMessage("JSON 문법이 올바르지 않습니다.");
+      return;
+    }
+
+    setBulkSubmitStatus("saving");
+    setBulkSubmitMessage("");
+
+    try {
+      const response = await fetch("/api/admin/popups", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        setBulkSubmitStatus("error");
+        setBulkSubmitMessage(extractMessage(responseText, `일괄 등록 실패: ${response.status}`));
+        return;
+      }
+
+      const savedPopups = JSON.parse(responseText) as AdminPopup[];
+      setBulkSubmitStatus("success");
+      setBulkSubmitMessage(`${savedPopups.length}개의 팝업을 일괄 등록했습니다.`);
+      setActiveTab("manage");
+      await loadAdminPopups(searchQuery);
+    } catch (error) {
+      setBulkSubmitStatus("error");
+      setBulkSubmitMessage(error instanceof Error ? error.message : "일괄 등록 중 오류가 발생했습니다.");
+    }
+  }
+
   return (
     <main className="admin-shell">
       <header className="top-header admin-header">
@@ -1058,6 +1170,38 @@ export default function AdminPopupNewPage() {
         </div>
       ) : (
         <>
+        <section className="form-panel bulk-panel">
+          <div className="section-heading">
+            <div>
+              <h2>JSON 일괄 등록</h2>
+              <p>JSON 배열을 붙여넣어 여러 팝업을 한 번에 등록합니다.</p>
+            </div>
+          </div>
+
+          <form className="bulk-form" onSubmit={handleBulkSubmit}>
+            <label>
+              팝업 JSON 배열
+              <textarea
+                className="bulk-json-input"
+                value={bulkJson}
+                onChange={(event) => setBulkJson(event.target.value)}
+                spellCheck={false}
+              />
+            </label>
+            <button className="save-button" disabled={bulkSubmitStatus === "saving"} type="submit">
+              <Save size={17} />
+              {bulkSubmitStatus === "saving" ? "일괄 등록 중" : "JSON 일괄 등록"}
+            </button>
+            {bulkSubmitMessage ? (
+              <output
+                className={bulkSubmitStatus === "success" ? "form-message success" : "form-message"}
+              >
+                {bulkSubmitMessage}
+              </output>
+            ) : null}
+          </form>
+        </section>
+
         <section className="form-panel search-panel">
           <div className="section-heading">
             <div>

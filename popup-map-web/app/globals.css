@@ -1009,6 +1009,24 @@ input:disabled {
   align-items: end;
 }
 
+.bulk-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.bulk-form {
+  display: grid;
+  gap: 12px;
+}
+
+.bulk-json-input {
+  min-height: 360px;
+  font-family: "SFMono-Regular", ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre;
+}
+
 .classification-panel {
   display: grid;
   gap: 18px;
