@@ -145,6 +145,17 @@ public class PopupService {
     }
 
     @Transactional
+    public List<AdminPopupResponse> createPopups(List<PopupCreateRequest> requests) {
+        if (requests.isEmpty()) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "최소 1개 이상의 팝업 등록 요청이 필요합니다.");
+        }
+
+        return requests.stream()
+                .map(this::createPopup)
+                .toList();
+    }
+
+    @Transactional
     public AdminPopupResponse updatePopup(Long popupId, PopupUpdateRequest request) {
         Popup popup = getAdminPopupEntity(popupId);
         String nextCategory = normalizeClassificationCode(request.category());

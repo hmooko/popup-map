@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.example.popupmapapi.admin.web.dto.AdminPopupResponse;
 import com.example.popupmapapi.admin.web.dto.PopupCreateRequest;
 import com.example.popupmapapi.admin.web.dto.PopupUpdateRequest;
 import com.example.popupmapapi.popup.domain.Popup;
@@ -12,6 +13,7 @@ import com.example.popupmapapi.popup.domain.PopupStatus;
 import com.example.popupmapapi.popup.persistence.PopupRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -79,6 +81,60 @@ class PopupServiceTest {
         assertThat(savedPopup.getDetailAddress()).isEqualTo(request.detailAddress());
         assertThat(savedPopup.getLatitude()).isEqualByComparingTo("37.5446");
         assertThat(savedPopup.getLongitude()).isEqualByComparingTo("127.0557");
+    }
+
+    @Test
+    void createPopupsSupportsBulkArrayPayload() {
+        PopupCreateRequest firstRequest = new PopupCreateRequest(
+                "Ader Archive Popup",
+                "Ader",
+                "설명",
+                "FASHION",
+                "SEONGSU",
+                "서울 성동구 연무장길 00",
+                "1층 팝업존",
+                LocalDate.of(2026, 4, 20),
+                LocalDate.of(2026, 5, 12),
+                "11:00-20:00",
+                false,
+                true,
+                null,
+                "https://example.com",
+                null,
+                null,
+                true
+        );
+        PopupCreateRequest secondRequest = new PopupCreateRequest(
+                "Beauty Popup",
+                "Glow",
+                "두 번째 설명",
+                "BEAUTY",
+                "HONGDAE",
+                "서울 마포구 와우산로 10",
+                "지하 1층",
+                LocalDate.of(2026, 5, 1),
+                LocalDate.of(2026, 5, 30),
+                "10:00-22:00",
+                true,
+                false,
+                5000,
+                "https://example.com/beauty",
+                "https://example.com/beauty/reservation",
+                null,
+                true
+        );
+
+        when(geocodingService.geocodeAddress(firstRequest.address()))
+                .thenReturn(new GeocodingResult(new BigDecimal("37.5446"), new BigDecimal("127.0557")));
+        when(geocodingService.geocodeAddress(secondRequest.address()))
+                .thenReturn(new GeocodingResult(new BigDecimal("37.5563"), new BigDecimal("126.9237")));
+        when(popupRepository.save(any(Popup.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<AdminPopupResponse> responses = popupService.createPopups(List.of(firstRequest, secondRequest));
+
+        assertThat(responses).hasSize(2);
+        assertThat(responses.get(0).region()).isEqualTo("SEONGSU");
+        assertThat(responses.get(1).category()).isEqualTo("BEAUTY");
     }
 
     @Test
