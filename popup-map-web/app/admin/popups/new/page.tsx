@@ -13,15 +13,13 @@ import {
   Save,
   Trash2
 } from "lucide-react";
-import { categoryLabels, regionLabels } from "@/lib/labels";
-import type { Category, Region } from "@/types/popup";
 
 interface PopupFormState {
   title: string;
   brandName: string;
   description: string;
-  category: Category;
-  region: Region;
+  category: string;
+  region: string;
   address: string;
   detailAddress: string;
   startDate: string;
@@ -47,8 +45,8 @@ interface AdminPopup {
   title: string;
   brandName: string;
   description: string | null;
-  category: Category;
-  region: Region;
+  category: string;
+  region: string;
   address: string;
   detailAddress: string | null;
   latitude: number;
@@ -67,12 +65,21 @@ interface AdminPopup {
   updatedAt: string;
 }
 
+interface PopupClassification {
+  id: number;
+  type: "REGION" | "CATEGORY";
+  code: string;
+  label: string;
+  sortOrder: number;
+  active: boolean;
+}
+
 const initialForm: PopupFormState = {
   title: "Ader Archive Popup",
   brandName: "Ader",
   description: "아카이브 제품과 한정 굿즈를 경험할 수 있는 성수 브랜드 팝업입니다.",
-  category: "FASHION",
-  region: "SEONGSU",
+  category: "",
+  region: "",
   address: "서울 성동구 연무장길 00",
   detailAddress: "1층 팝업존",
   startDate: "2026-04-20",
@@ -86,9 +93,6 @@ const initialForm: PopupFormState = {
   thumbnailUrl: "",
   visible: true
 };
-
-const regions = Object.keys(regionLabels) as Region[];
-const categories = Object.keys(categoryLabels) as Category[];
 
 function mapPopupToFormState(popup: AdminPopup): PopupFormState {
   return {
@@ -125,6 +129,17 @@ function extractMessage(responseText: string, fallback: string) {
   }
 }
 
+function toLabelMap(classifications: PopupClassification[]) {
+  return classifications.reduce<Record<string, string>>((accumulator, classification) => {
+    accumulator[classification.code] = classification.label;
+    return accumulator;
+  }, {});
+}
+
+function getClassificationLabel(labelMap: Record<string, string>, code: string) {
+  return labelMap[code] ?? code;
+}
+
 export default function AdminPopupNewPage() {
   const [form, setForm] = useState<PopupFormState>(initialForm);
   const [email, setEmail] = useState("admin@example.com");
@@ -142,11 +157,19 @@ export default function AdminPopupNewPage() {
   );
   const [submitMessage, setSubmitMessage] = useState("");
   const [adminPopups, setAdminPopups] = useState<AdminPopup[]>([]);
+  const [regions, setRegions] = useState<PopupClassification[]>([]);
+  const [categories, setCategories] = useState<PopupClassification[]>([]);
   const [listStatus, setListStatus] = useState<"idle" | "loading" | "error">("idle");
   const [listMessage, setListMessage] = useState("");
+  const [classificationStatus, setClassificationStatus] = useState<"idle" | "loading" | "error">(
+    "idle"
+  );
+  const [classificationMessage, setClassificationMessage] = useState("");
   const [deletingPopupId, setDeletingPopupId] = useState<number | null>(null);
   const [togglingPopupId, setTogglingPopupId] = useState<number | null>(null);
 
+  const regionLabels = useMemo(() => toLabelMap(regions), [regions]);
+  const categoryLabels = useMemo(() => toLabelMap(categories), [categories]);
   const isEditing = editingPopupId !== null;
   const selectedPopup = useMemo(
     () => adminPopups.find((popup) => popup.id === editingPopupId) ?? null,
@@ -156,8 +179,8 @@ export default function AdminPopupNewPage() {
     const start = form.startDate.slice(5).replace("-", ".");
     const end = form.endDate.slice(5).replace("-", ".");
 
-    return `${regionLabels[form.region]} · ${categoryLabels[form.category]} · ${start} - ${end}`;
-  }, [form.category, form.endDate, form.region, form.startDate]);
+    return `${getClassificationLabel(regionLabels, form.region)} · ${getClassificationLabel(categoryLabels, form.category)} · ${start} - ${end}`;
+  }, [categoryLabels, form.category, form.endDate, form.region, form.startDate, regionLabels]);
 
   function update<K extends keyof PopupFormState>(key: K, value: PopupFormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -165,9 +188,70 @@ export default function AdminPopupNewPage() {
 
   function resetEditor() {
     setEditingPopupId(null);
-    setForm(initialForm);
+    setForm((current) => ({
+      ...initialForm,
+      region: regions[0]?.code ?? "",
+      category: categories[0]?.code ?? ""
+    }));
     setSubmitStatus("idle");
     setSubmitMessage("");
+  }
+
+  async function loadClassifications() {
+    setClassificationStatus("loading");
+    setClassificationMessage("");
+
+    try {
+      const [regionResponse, categoryResponse] = await Promise.all([
+        fetch("/api/popup-classifications?type=REGION", { cache: "no-store" }),
+        fetch("/api/popup-classifications?type=CATEGORY", { cache: "no-store" })
+      ]);
+
+      const [regionResponseText, categoryResponseText] = await Promise.all([
+        regionResponse.text(),
+        categoryResponse.text()
+      ]);
+
+      if (!regionResponse.ok) {
+        setClassificationStatus("error");
+        setClassificationMessage(
+          extractMessage(regionResponseText, `지역 목록 조회 실패: ${regionResponse.status}`)
+        );
+        return;
+      }
+
+      if (!categoryResponse.ok) {
+        setClassificationStatus("error");
+        setClassificationMessage(
+          extractMessage(categoryResponseText, `카테고리 목록 조회 실패: ${categoryResponse.status}`)
+        );
+        return;
+      }
+
+      const nextRegions = JSON.parse(regionResponseText) as PopupClassification[];
+      const nextCategories = JSON.parse(categoryResponseText) as PopupClassification[];
+
+      setRegions(nextRegions);
+      setCategories(nextCategories);
+      setClassificationStatus("idle");
+      setForm((current) => ({
+        ...current,
+        region:
+          current.region && nextRegions.some((classification) => classification.code === current.region)
+            ? current.region
+            : (nextRegions[0]?.code ?? ""),
+        category:
+          current.category &&
+          nextCategories.some((classification) => classification.code === current.category)
+            ? current.category
+            : (nextCategories[0]?.code ?? "")
+      }));
+    } catch (error) {
+      setClassificationStatus("error");
+      setClassificationMessage(
+        error instanceof Error ? error.message : "분류 목록 조회 중 오류가 발생했습니다."
+      );
+    }
   }
 
   async function loadAdminPopups(keyword?: string) {
@@ -213,6 +297,10 @@ export default function AdminPopupNewPage() {
       setListMessage(error instanceof Error ? error.message : "목록 조회 중 오류가 발생했습니다.");
     }
   }
+
+  useEffect(() => {
+    void loadClassifications();
+  }, []);
 
   useEffect(() => {
     if (!accessToken) {
@@ -607,11 +695,12 @@ export default function AdminPopupNewPage() {
                   지역
                   <select
                     value={form.region}
-                    onChange={(event) => update("region", event.target.value as Region)}
+                    onChange={(event) => update("region", event.target.value)}
+                    disabled={classificationStatus === "loading" || regions.length === 0}
                   >
                     {regions.map((region) => (
-                      <option key={region} value={region}>
-                        {regionLabels[region]}
+                      <option key={region.id} value={region.code}>
+                        {region.label}
                       </option>
                     ))}
                   </select>
@@ -621,11 +710,12 @@ export default function AdminPopupNewPage() {
                   카테고리
                   <select
                     value={form.category}
-                    onChange={(event) => update("category", event.target.value as Category)}
+                    onChange={(event) => update("category", event.target.value)}
+                    disabled={classificationStatus === "loading" || categories.length === 0}
                   >
                     {categories.map((category) => (
-                      <option key={category} value={category}>
-                        {categoryLabels[category]}
+                      <option key={category.id} value={category.code}>
+                        {category.label}
                       </option>
                     ))}
                   </select>
@@ -742,6 +832,16 @@ export default function AdminPopupNewPage() {
                   {submitMessage}
                 </output>
               ) : null}
+
+              {classificationMessage ? (
+                <output
+                  className={
+                    classificationStatus === "error" ? "form-message" : "form-message success"
+                  }
+                >
+                  {classificationMessage}
+                </output>
+              ) : null}
             </form>
           </section>
 
@@ -816,7 +916,8 @@ export default function AdminPopupNewPage() {
                 >
                   <div className="manage-result-main">
                     <small>
-                      #{popup.id} · {categoryLabels[popup.category]} · {regionLabels[popup.region]}
+                      #{popup.id} · {getClassificationLabel(categoryLabels, popup.category)} ·{" "}
+                      {getClassificationLabel(regionLabels, popup.region)}
                     </small>
                     <strong>{popup.title}</strong>
                     <span>{popup.address}</span>
