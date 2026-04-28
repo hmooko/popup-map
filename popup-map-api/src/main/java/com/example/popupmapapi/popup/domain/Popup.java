@@ -2,8 +2,6 @@ package com.example.popupmapapi.popup.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,13 +35,11 @@ public class Popup {
     @Column(columnDefinition = "text")
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private Category category;
+    @Column(nullable = false, length = 50)
+    private String category;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private Region region;
+    @Column(nullable = false, length = 50)
+    private String region;
 
     @Column(nullable = false, length = 255)
     private String address;
@@ -99,8 +95,8 @@ public class Popup {
             String title,
             String brandName,
             String description,
-            Category category,
-            Region region,
+            String category,
+            String region,
             String address,
             String detailAddress,
             BigDecimal latitude,
@@ -141,8 +137,8 @@ public class Popup {
             String title,
             String brandName,
             String description,
-            Category category,
-            Region region,
+            String category,
+            String region,
             String address,
             String detailAddress,
             BigDecimal latitude,

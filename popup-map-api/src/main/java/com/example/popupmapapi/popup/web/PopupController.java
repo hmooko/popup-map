@@ -1,8 +1,6 @@
 package com.example.popupmapapi.popup.web;
 
-import com.example.popupmapapi.popup.domain.Category;
 import com.example.popupmapapi.popup.domain.PopupStatus;
-import com.example.popupmapapi.popup.domain.Region;
 import com.example.popupmapapi.popup.service.PopupService;
 import com.example.popupmapapi.popup.web.dto.NearbyPopupResponse;
 import com.example.popupmapapi.popup.web.dto.PageResponse;
@@ -39,8 +37,8 @@ public class PopupController {
     @GetMapping
     @Operation(summary = "팝업 목록 조회", description = "지역, 카테고리, 상태, 기간 등 조건으로 팝업 목록을 조회합니다.")
     public PageResponse<PopupListItemResponse> searchPopups(
-            @RequestParam(required = false) Region region,
-            @RequestParam(required = false) Category category,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) String category,
             @RequestParam(required = false) PopupStatus status,
             @RequestParam(required = false) Boolean reservationRequired,
             @RequestParam(defaultValue = "false") boolean freeOnly,

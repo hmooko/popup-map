@@ -1,8 +1,6 @@
 package com.example.popupmapapi.popup.persistence;
 
-import com.example.popupmapapi.popup.domain.Category;
 import com.example.popupmapapi.popup.domain.Popup;
-import com.example.popupmapapi.popup.domain.Region;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -43,8 +41,8 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
               p.createdAt desc
             """)
     Page<Popup> searchPublicPopups(
-            @Param("region") Region region,
-            @Param("category") Category category,
+            @Param("region") String region,
+            @Param("category") String category,
             @Param("status") String status,
             @Param("reservationRequired") Boolean reservationRequired,
             @Param("freeOnly") boolean freeOnly,
@@ -110,6 +108,10 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
             order by p.updatedAt desc, p.createdAt desc
             """)
     List<Popup> searchAdminPopups(@Param("keyword") String keyword);
+
+    boolean existsByRegion(String region);
+
+    boolean existsByCategory(String category);
 
     default List<Popup> findAllAdminPopups() {
         return findAll(Sort.by(

@@ -1,9 +1,7 @@
 package com.example.popupmapapi.popup.web.dto;
 
-import com.example.popupmapapi.popup.domain.Category;
 import com.example.popupmapapi.popup.domain.Popup;
 import com.example.popupmapapi.popup.domain.PopupStatus;
-import com.example.popupmapapi.popup.domain.Region;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -12,8 +10,8 @@ public record PopupDetailResponse(
         String title,
         String brandName,
         String description,
-        Category category,
-        Region region,
+        String category,
+        String region,
         String address,
         String detailAddress,
         BigDecimal latitude,

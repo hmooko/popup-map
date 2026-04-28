@@ -7,10 +7,8 @@ import static org.mockito.Mockito.when;
 
 import com.example.popupmapapi.admin.web.dto.PopupCreateRequest;
 import com.example.popupmapapi.admin.web.dto.PopupUpdateRequest;
-import com.example.popupmapapi.popup.domain.Category;
 import com.example.popupmapapi.popup.domain.Popup;
 import com.example.popupmapapi.popup.domain.PopupStatus;
-import com.example.popupmapapi.popup.domain.Region;
 import com.example.popupmapapi.popup.persistence.PopupRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -40,6 +38,9 @@ class PopupServiceTest {
     @Mock
     private GeocodingService geocodingService;
 
+    @Mock
+    private PopupClassificationService popupClassificationService;
+
     @InjectMocks
     private PopupService popupService;
 
@@ -49,8 +50,8 @@ class PopupServiceTest {
                 "Ader Archive Popup",
                 "Ader",
                 "설명",
-                Category.FASHION,
-                Region.SEONGSU,
+                "FASHION",
+                "SEONGSU",
                 "서울 성동구 연무장길 00",
                 "1층 팝업존",
                 LocalDate.of(2026, 4, 20),
@@ -86,8 +87,8 @@ class PopupServiceTest {
                 .title("기존 팝업")
                 .brandName("브랜드")
                 .description("설명")
-                .category(Category.FASHION)
-                .region(Region.SEONGSU)
+                .category("FASHION")
+                .region("SEONGSU")
                 .address("서울 성동구 연무장길 00")
                 .detailAddress("1층 팝업존")
                 .latitude(new BigDecimal("37.5446"))

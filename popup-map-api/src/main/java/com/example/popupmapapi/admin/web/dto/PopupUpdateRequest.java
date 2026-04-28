@@ -1,7 +1,5 @@
 package com.example.popupmapapi.admin.web.dto;
 
-import com.example.popupmapapi.popup.domain.Category;
-import com.example.popupmapapi.popup.domain.Region;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
@@ -11,8 +9,8 @@ public record PopupUpdateRequest(
         @Size(max = 120) String title,
         @Size(max = 120) String brandName,
         String description,
-        Category category,
-        Region region,
+        @Size(max = 50) String category,
+        @Size(max = 50) String region,
         @Size(max = 255) String address,
         @Size(max = 255) String detailAddress,
         LocalDate startDate,

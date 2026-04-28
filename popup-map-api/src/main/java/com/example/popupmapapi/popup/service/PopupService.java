@@ -6,10 +6,9 @@ import com.example.popupmapapi.admin.web.dto.PopupUpdateRequest;
 import com.example.popupmapapi.admin.web.dto.PopupVisibilityResponse;
 import com.example.popupmapapi.common.error.BusinessException;
 import com.example.popupmapapi.common.error.ErrorCode;
-import com.example.popupmapapi.popup.domain.Category;
 import com.example.popupmapapi.popup.domain.Popup;
+import com.example.popupmapapi.popup.domain.PopupClassificationType;
 import com.example.popupmapapi.popup.domain.PopupStatus;
-import com.example.popupmapapi.popup.domain.Region;
 import com.example.popupmapapi.popup.persistence.PopupRepository;
 import com.example.popupmapapi.popup.web.dto.NearbyPopupResponse;
 import com.example.popupmapapi.popup.web.dto.PageResponse;
@@ -35,10 +34,11 @@ public class PopupService {
 
     private final PopupRepository popupRepository;
     private final GeocodingService geocodingService;
+    private final PopupClassificationService popupClassificationService;
 
     public PageResponse<PopupListItemResponse> searchPopups(
-            Region region,
-            Category category,
+            String region,
+            String category,
             PopupStatus status,
             Boolean reservationRequired,
             boolean freeOnly,
@@ -48,11 +48,13 @@ public class PopupService {
             int size
     ) {
         validateDateRange(startDate, endDate);
+        String normalizedRegion = normalizeClassificationCode(region);
+        String normalizedCategory = normalizeClassificationCode(category);
         LocalDate today = LocalDate.now();
         Pageable pageable = PageRequest.of(page, size);
         return PageResponse.from(popupRepository.searchPublicPopups(
-                region,
-                category,
+                normalizedRegion,
+                normalizedCategory,
                 status == null ? null : status.name(),
                 reservationRequired,
                 freeOnly,
@@ -114,14 +116,16 @@ public class PopupService {
 
     @Transactional
     public AdminPopupResponse createPopup(PopupCreateRequest request) {
-        validateCreateRequest(request);
+        String category = normalizeRequiredClassificationCode(request.category(), "카테고리");
+        String region = normalizeRequiredClassificationCode(request.region(), "지역");
+        validateCreateRequest(region, category, request);
         GeocodingResult geocodingResult = geocodingService.geocodeAddress(request.address());
         Popup popup = popupRepository.save(Popup.builder()
                 .title(request.title())
                 .brandName(request.brandName())
                 .description(request.description())
-                .category(request.category())
-                .region(request.region())
+                .category(category)
+                .region(region)
                 .address(request.address())
                 .detailAddress(blankToNull(request.detailAddress()))
                 .latitude(geocodingResult.latitude())
@@ -143,9 +147,15 @@ public class PopupService {
     @Transactional
     public AdminPopupResponse updatePopup(Long popupId, PopupUpdateRequest request) {
         Popup popup = getAdminPopupEntity(popupId);
+        String nextCategory = normalizeClassificationCode(request.category());
+        String nextRegion = normalizeClassificationCode(request.region());
         LocalDate nextStartDate = request.startDate() == null ? popup.getStartDate() : request.startDate();
         LocalDate nextEndDate = request.endDate() == null ? popup.getEndDate() : request.endDate();
         validateDateRange(nextStartDate, nextEndDate);
+        validatePopupClassifications(
+                nextRegion == null ? popup.getRegion() : nextRegion,
+                nextCategory == null ? popup.getCategory() : nextCategory
+        );
         Boolean nextFreeAdmission = request.freeAdmission();
         Integer nextEntryFee = request.entryFee();
         if (nextFreeAdmission == null) {
@@ -164,8 +174,8 @@ public class PopupService {
                 blankToNull(request.title()),
                 blankToNull(request.brandName()),
                 request.description(),
-                request.category(),
-                request.region(),
+                nextCategory,
+                nextRegion,
                 nextAddress,
                 nextDetailAddress,
                 geocodingResult == null ? null : geocodingResult.latitude(),
@@ -202,9 +212,15 @@ public class PopupService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "팝업을 찾을 수 없습니다."));
     }
 
-    private void validateCreateRequest(PopupCreateRequest request) {
+    private void validateCreateRequest(String region, String category, PopupCreateRequest request) {
+        validatePopupClassifications(region, category);
         validateDateRange(request.startDate(), request.endDate());
         validateAdmission(request.freeAdmission(), request.entryFee());
+    }
+
+    private void validatePopupClassifications(String region, String category) {
+        popupClassificationService.validateActiveClassification(PopupClassificationType.REGION, region, "지역");
+        popupClassificationService.validateActiveClassification(PopupClassificationType.CATEGORY, category, "카테고리");
     }
 
     private void validateDateRange(LocalDate startDate, LocalDate endDate) {
@@ -227,6 +243,19 @@ public class PopupService {
             return null;
         }
         return entryFee;
+    }
+
+    private String normalizeRequiredClassificationCode(String code, String fieldName) {
+        String normalizedCode = normalizeClassificationCode(code);
+        if (normalizedCode == null) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, fieldName + " 코드는 비어 있을 수 없습니다.");
+        }
+        return normalizedCode;
+    }
+
+    private String normalizeClassificationCode(String code) {
+        String normalizedCode = blankToNull(code);
+        return normalizedCode == null ? null : normalizedCode.toUpperCase();
     }
 
     private String blankToNull(String value) {
