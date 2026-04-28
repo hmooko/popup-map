@@ -134,6 +134,16 @@ export function MapPanel({
     setOpenedPopupId(selectedPopup?.id ?? null);
   }, [selectedPopup]);
 
+  useEffect(() => {
+    if (sdkState !== "ready" || !selectedPopup || !mapRef.current || !window.kakao?.maps) {
+      return;
+    }
+
+    mapRef.current.setCenter(
+      new window.kakao.maps.LatLng(selectedPopup.latitude, selectedPopup.longitude)
+    );
+  }, [sdkState, selectedPopup]);
+
   function getCurrentBounds(): MapBounds | null {
     if (!mapRef.current) {
       return null;
