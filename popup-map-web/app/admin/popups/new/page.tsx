@@ -74,6 +74,13 @@ interface PopupClassification {
   active: boolean;
 }
 
+interface ClassificationFormState {
+  type: "REGION" | "CATEGORY";
+  code: string;
+  label: string;
+  sortOrder: string;
+}
+
 const initialForm: PopupFormState = {
   title: "Ader Archive Popup",
   brandName: "Ader",
@@ -92,6 +99,13 @@ const initialForm: PopupFormState = {
   reservationUrl: "",
   thumbnailUrl: "",
   visible: true
+};
+
+const initialClassificationForm: ClassificationFormState = {
+  type: "REGION",
+  code: "",
+  label: "",
+  sortOrder: ""
 };
 
 function mapPopupToFormState(popup: AdminPopup): PopupFormState {
@@ -159,14 +173,24 @@ export default function AdminPopupNewPage() {
   const [adminPopups, setAdminPopups] = useState<AdminPopup[]>([]);
   const [regions, setRegions] = useState<PopupClassification[]>([]);
   const [categories, setCategories] = useState<PopupClassification[]>([]);
+  const [classificationForm, setClassificationForm] = useState<ClassificationFormState>(
+    initialClassificationForm
+  );
+  const [adminRegions, setAdminRegions] = useState<PopupClassification[]>([]);
+  const [adminCategories, setAdminCategories] = useState<PopupClassification[]>([]);
   const [listStatus, setListStatus] = useState<"idle" | "loading" | "error">("idle");
   const [listMessage, setListMessage] = useState("");
   const [classificationStatus, setClassificationStatus] = useState<"idle" | "loading" | "error">(
     "idle"
   );
   const [classificationMessage, setClassificationMessage] = useState("");
+  const [classificationManageStatus, setClassificationManageStatus] = useState<
+    "idle" | "loading" | "saving" | "error"
+  >("idle");
+  const [classificationManageMessage, setClassificationManageMessage] = useState("");
   const [deletingPopupId, setDeletingPopupId] = useState<number | null>(null);
   const [togglingPopupId, setTogglingPopupId] = useState<number | null>(null);
+  const [deletingClassificationId, setDeletingClassificationId] = useState<number | null>(null);
 
   const regionLabels = useMemo(() => toLabelMap(regions), [regions]);
   const categoryLabels = useMemo(() => toLabelMap(categories), [categories]);
@@ -184,6 +208,13 @@ export default function AdminPopupNewPage() {
 
   function update<K extends keyof PopupFormState>(key: K, value: PopupFormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function updateClassificationForm<K extends keyof ClassificationFormState>(
+    key: K,
+    value: ClassificationFormState[K]
+  ) {
+    setClassificationForm((current) => ({ ...current, [key]: value }));
   }
 
   function resetEditor() {
@@ -254,6 +285,60 @@ export default function AdminPopupNewPage() {
     }
   }
 
+  async function loadAdminClassifications() {
+    if (!accessToken) {
+      setAdminRegions([]);
+      setAdminCategories([]);
+      return;
+    }
+
+    setClassificationManageStatus("loading");
+    setClassificationManageMessage("");
+
+    try {
+      const [regionResponse, categoryResponse] = await Promise.all([
+        fetch("/api/admin/popup-classifications?type=REGION", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          cache: "no-store"
+        }),
+        fetch("/api/admin/popup-classifications?type=CATEGORY", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          cache: "no-store"
+        })
+      ]);
+
+      const [regionResponseText, categoryResponseText] = await Promise.all([
+        regionResponse.text(),
+        categoryResponse.text()
+      ]);
+
+      if (!regionResponse.ok) {
+        setClassificationManageStatus("error");
+        setClassificationManageMessage(
+          extractMessage(regionResponseText, `지역 관리 목록 조회 실패: ${regionResponse.status}`)
+        );
+        return;
+      }
+
+      if (!categoryResponse.ok) {
+        setClassificationManageStatus("error");
+        setClassificationManageMessage(
+          extractMessage(categoryResponseText, `카테고리 관리 목록 조회 실패: ${categoryResponse.status}`)
+        );
+        return;
+      }
+
+      setAdminRegions(JSON.parse(regionResponseText) as PopupClassification[]);
+      setAdminCategories(JSON.parse(categoryResponseText) as PopupClassification[]);
+      setClassificationManageStatus("idle");
+    } catch (error) {
+      setClassificationManageStatus("error");
+      setClassificationManageMessage(
+        error instanceof Error ? error.message : "분류 관리 목록 조회 중 오류가 발생했습니다."
+      );
+    }
+  }
+
   async function loadAdminPopups(keyword?: string) {
     if (!accessToken) {
       setAdminPopups([]);
@@ -306,11 +391,110 @@ export default function AdminPopupNewPage() {
     if (!accessToken) {
       setAdminPopups([]);
       setEditingPopupId(null);
+      setAdminRegions([]);
+      setAdminCategories([]);
       return;
     }
 
     void loadAdminPopups("");
+    void loadAdminClassifications();
   }, [accessToken]);
+
+  async function handleClassificationSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!accessToken) {
+      setClassificationManageStatus("error");
+      setClassificationManageMessage("먼저 관리자 로그인을 완료해 주세요.");
+      return;
+    }
+
+    setClassificationManageStatus("saving");
+    setClassificationManageMessage("");
+
+    try {
+      const response = await fetch("/api/admin/popup-classifications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          type: classificationForm.type,
+          code: classificationForm.code.trim().toUpperCase(),
+          label: classificationForm.label.trim(),
+          sortOrder: classificationForm.sortOrder ? Number(classificationForm.sortOrder) : null,
+          active: true
+        })
+      });
+
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        setClassificationManageStatus("error");
+        setClassificationManageMessage(
+          extractMessage(responseText, `분류 추가 실패: ${response.status}`)
+        );
+        return;
+      }
+
+      setClassificationForm((current) => ({ ...initialClassificationForm, type: current.type }));
+      setClassificationManageStatus("idle");
+      setClassificationManageMessage("분류 코드를 추가했습니다.");
+      await Promise.all([loadClassifications(), loadAdminClassifications()]);
+    } catch (error) {
+      setClassificationManageStatus("error");
+      setClassificationManageMessage(
+        error instanceof Error ? error.message : "분류 추가 중 오류가 발생했습니다."
+      );
+    }
+  }
+
+  async function handleDeleteClassification(classification: PopupClassification) {
+    if (!accessToken) {
+      setClassificationManageStatus("error");
+      setClassificationManageMessage("먼저 관리자 로그인을 완료해 주세요.");
+      return;
+    }
+
+    if (!window.confirm(`${classification.label} (${classification.code}) 코드를 삭제할까요?`)) {
+      return;
+    }
+
+    setDeletingClassificationId(classification.id);
+    setClassificationManageMessage("");
+
+    try {
+      const response = await fetch(`/api/admin/popup-classifications/${classification.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        setDeletingClassificationId(null);
+        setClassificationManageStatus("error");
+        setClassificationManageMessage(
+          extractMessage(responseText, `분류 삭제 실패: ${response.status}`)
+        );
+        return;
+      }
+
+      setDeletingClassificationId(null);
+      setClassificationManageStatus("idle");
+      setClassificationManageMessage("분류 코드를 삭제했습니다.");
+      await Promise.all([loadClassifications(), loadAdminClassifications()]);
+    } catch (error) {
+      setDeletingClassificationId(null);
+      setClassificationManageStatus("error");
+      setClassificationManageMessage(
+        error instanceof Error ? error.message : "분류 삭제 중 오류가 발생했습니다."
+      );
+    }
+  }
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -873,6 +1057,7 @@ export default function AdminPopupNewPage() {
           </aside>
         </div>
       ) : (
+        <>
         <section className="form-panel search-panel">
           <div className="section-heading">
             <div>
@@ -983,6 +1168,139 @@ export default function AdminPopupNewPage() {
             </output>
           ) : null}
         </section>
+
+        <section className="form-panel classification-panel">
+          <div className="section-heading">
+            <div>
+              <h2>지역 / 카테고리 관리</h2>
+              <p>새 분류 코드를 추가하거나 사용되지 않는 코드를 삭제할 수 있습니다.</p>
+            </div>
+          </div>
+
+          <form className="classification-form" onSubmit={handleClassificationSubmit}>
+            <label>
+              분류 타입
+              <select
+                value={classificationForm.type}
+                onChange={(event) =>
+                  updateClassificationForm("type", event.target.value as ClassificationFormState["type"])
+                }
+              >
+                <option value="REGION">지역</option>
+                <option value="CATEGORY">카테고리</option>
+              </select>
+            </label>
+            <label>
+              코드
+              <input
+                required
+                value={classificationForm.code}
+                onChange={(event) => updateClassificationForm("code", event.target.value.toUpperCase())}
+                placeholder="SEONGSU_SIDE"
+              />
+            </label>
+            <label>
+              라벨
+              <input
+                required
+                value={classificationForm.label}
+                onChange={(event) => updateClassificationForm("label", event.target.value)}
+                placeholder="성수 사이드"
+              />
+            </label>
+            <label>
+              정렬 순서
+              <input
+                inputMode="numeric"
+                value={classificationForm.sortOrder}
+                onChange={(event) => updateClassificationForm("sortOrder", event.target.value)}
+                placeholder="70"
+              />
+            </label>
+            <button
+              className="save-button"
+              disabled={classificationManageStatus === "saving"}
+              type="submit"
+            >
+              <Plus size={17} />
+              {classificationManageStatus === "saving" ? "추가 중" : "분류 추가"}
+            </button>
+          </form>
+
+          <div className="classification-grid">
+            <div className="classification-column">
+              <div className="classification-column-header">
+                <h3>지역</h3>
+                <button
+                  className="secondary-action"
+                  disabled={classificationManageStatus === "loading"}
+                  type="button"
+                  onClick={() => void loadAdminClassifications()}
+                >
+                  <RefreshCw size={16} />
+                  새로고침
+                </button>
+              </div>
+              <div className="delete-result-list">
+                {adminRegions.map((classification) => (
+                  <article className="delete-result-item" key={classification.id}>
+                    <div>
+                      <small>{classification.code}</small>
+                      <strong>{classification.label}</strong>
+                      <span>정렬 순서 {classification.sortOrder}</span>
+                    </div>
+                    <button
+                      className="delete-button"
+                      disabled={deletingClassificationId === classification.id}
+                      type="button"
+                      onClick={() => void handleDeleteClassification(classification)}
+                    >
+                      <Trash2 size={16} />
+                      {deletingClassificationId === classification.id ? "삭제 중" : "삭제"}
+                    </button>
+                  </article>
+                ))}
+              </div>
+            </div>
+
+            <div className="classification-column">
+              <div className="classification-column-header">
+                <h3>카테고리</h3>
+              </div>
+              <div className="delete-result-list">
+                {adminCategories.map((classification) => (
+                  <article className="delete-result-item" key={classification.id}>
+                    <div>
+                      <small>{classification.code}</small>
+                      <strong>{classification.label}</strong>
+                      <span>정렬 순서 {classification.sortOrder}</span>
+                    </div>
+                    <button
+                      className="delete-button"
+                      disabled={deletingClassificationId === classification.id}
+                      type="button"
+                      onClick={() => void handleDeleteClassification(classification)}
+                    >
+                      <Trash2 size={16} />
+                      {deletingClassificationId === classification.id ? "삭제 중" : "삭제"}
+                    </button>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {classificationManageMessage ? (
+            <output
+              className={
+                classificationManageStatus === "error" ? "form-message" : "form-message success"
+              }
+            >
+              {classificationManageMessage}
+            </output>
+          ) : null}
+        </section>
+        </>
           )}
         </>
       )}
