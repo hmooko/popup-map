@@ -51,17 +51,19 @@ public class AdminPopupController {
 
     @PostMapping
     @Operation(summary = "팝업 등록", description = "단건 객체 또는 JSON 배열 형태로 새 팝업스토어를 등록합니다.")
-    public ResponseEntity<?> createPopup(@RequestBody JsonNode requestBody) {
-        if (requestBody.isArray()) {
-            List<PopupCreateRequest> requests = parseCreateRequests(requestBody);
+    public ResponseEntity<?> createPopup(@RequestBody String requestBody) {
+        JsonNode rootNode = parseRequestBody(requestBody);
+
+        if (rootNode.isArray()) {
+            List<PopupCreateRequest> requests = parseCreateRequests(rootNode);
             return ResponseEntity.status(HttpStatus.CREATED).body(popupService.createPopups(requests));
         }
 
-        if (!requestBody.isObject()) {
+        if (!rootNode.isObject()) {
             throw new BusinessException(ErrorCode.INVALID_REQUEST, "팝업 등록 요청은 JSON 객체 또는 배열이어야 합니다.");
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(popupService.createPopup(parseCreateRequest(requestBody)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(popupService.createPopup(parseCreateRequest(rootNode)));
     }
 
     @PatchMapping("/{popupId}")
@@ -95,12 +97,20 @@ public class AdminPopupController {
                 .toList();
     }
 
+    private JsonNode parseRequestBody(String requestBody) {
+        try {
+            return objectMapper.readTree(requestBody);
+        } catch (JsonProcessingException exception) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "팝업 등록 요청 JSON 형식이 올바르지 않습니다.");
+        }
+    }
+
     private PopupCreateRequest parseCreateRequest(JsonNode requestBody) {
         try {
             PopupCreateRequest request = objectMapper.treeToValue(requestBody, PopupCreateRequest.class);
             validate(request);
             return request;
-        } catch (JsonProcessingException exception) {
+        } catch (IllegalArgumentException | JsonProcessingException exception) {
             throw new BusinessException(ErrorCode.INVALID_REQUEST, "팝업 등록 요청 JSON 형식이 올바르지 않습니다.");
         }
     }
