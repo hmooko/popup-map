@@ -1,10 +1,9 @@
-import type { Category, Popup, PopupStatus, Region } from "@/types/popup";
+import type { Category, Popup, Region } from "@/types/popup";
 
 export interface PopupApiItem {
   id: number;
   title: string;
   brandName: string;
-  status: PopupStatus;
   description?: string | null;
   category: Category;
   region: Region;
@@ -31,7 +30,6 @@ export function mapPopupApiItem(popup: PopupApiItem, index = 0): Popup {
     id: popup.id,
     title: popup.title,
     brandName: popup.brandName,
-    status: popup.status,
     description: popup.description ?? "팝업 상세 소개가 준비 중입니다.",
     category: popup.category,
     region: popup.region,

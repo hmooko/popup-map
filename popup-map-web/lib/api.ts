@@ -1,5 +1,6 @@
 import { mapPopupApiItem, type PopupApiItem } from "@/lib/popupMapper";
-import type { Popup } from "@/types/popup";
+import { addDays, formatDateParam } from "@/lib/popupDates";
+import type { Popup, PopupFilters } from "@/types/popup";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://popup-map-api.with-momo.com";
@@ -25,8 +26,58 @@ interface PopupMapApiItem {
   id: number;
 }
 
-export async function fetchPopups(): Promise<Popup[]> {
-  const response = await fetch("/api/popups", {
+function buildPopupSearchParams(filters?: PopupFilters) {
+  const searchParams = new URLSearchParams();
+
+  searchParams.set("page", "0");
+  searchParams.set("size", "50");
+
+  if (!filters) {
+    return searchParams;
+  }
+
+  if (filters.region !== "ALL") {
+    searchParams.set("region", filters.region);
+  }
+
+  if (filters.category !== "ALL") {
+    searchParams.set("category", filters.category);
+  }
+
+  if (filters.freeOnly) {
+    searchParams.set("freeOnly", "true");
+  }
+
+  if (filters.reservationFreeOnly) {
+    searchParams.set("reservationRequired", "false");
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (filters.datePreset === "OPEN_TODAY") {
+    searchParams.set("openOnDate", formatDateParam(today));
+  }
+
+  if (filters.datePreset === "UPCOMING") {
+    searchParams.set("startDateFrom", formatDateParam(addDays(today, 1)));
+  }
+
+  if (filters.datePreset === "CUSTOM_RANGE") {
+    if (filters.dateFrom) {
+      searchParams.set("dateFrom", filters.dateFrom);
+    }
+
+    if (filters.dateTo) {
+      searchParams.set("dateTo", filters.dateTo);
+    }
+  }
+
+  return searchParams;
+}
+
+export async function fetchPopups(filters?: PopupFilters): Promise<Popup[]> {
+  const response = await fetch(`/api/popups?${buildPopupSearchParams(filters).toString()}`, {
     headers: {
       Accept: "application/json"
     },

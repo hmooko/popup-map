@@ -9,7 +9,6 @@ import com.example.popupmapapi.admin.web.dto.AdminPopupResponse;
 import com.example.popupmapapi.admin.web.dto.PopupCreateRequest;
 import com.example.popupmapapi.admin.web.dto.PopupUpdateRequest;
 import com.example.popupmapapi.popup.domain.Popup;
-import com.example.popupmapapi.popup.domain.PopupStatus;
 import com.example.popupmapapi.popup.persistence.PopupRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,15 +23,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class PopupServiceTest {
-
-    @Test
-    void popupStatusUsesSingleBackendRule() {
-        LocalDate today = LocalDate.of(2026, 4, 27);
-
-        assertThat(PopupStatus.from(today.minusDays(2), today.plusDays(10), today)).isEqualTo(PopupStatus.ONGOING);
-        assertThat(PopupStatus.from(today.plusDays(1), today.plusDays(5), today)).isEqualTo(PopupStatus.UPCOMING);
-        assertThat(PopupStatus.from(today.minusDays(3), today.plusDays(7), today)).isEqualTo(PopupStatus.CLOSING_SOON);
-    }
 
     @Mock
     private PopupRepository popupRepository;

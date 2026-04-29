@@ -23,18 +23,10 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
               and (:category is null or p.category = :category)
               and (:reservationRequired is null or p.reservationRequired = :reservationRequired)
               and (:freeOnly = false or p.freeAdmission = true)
-              and (:startDate is null or p.endDate >= :startDate)
-              and (:endDate is null or p.startDate <= :endDate)
-              and (
-                    :status is null
-                    or (:status = 'ONGOING' and p.startDate <= :today and p.endDate >= :today)
-                    or (:status = 'UPCOMING' and p.startDate > :today)
-                    or (
-                        :status = 'CLOSING_SOON'
-                        and p.startDate <= :today
-                        and p.endDate between :today and :closingSoonDate
-                    )
-              )
+              and (:openOnDate is null or (p.startDate <= :openOnDate and p.endDate >= :openOnDate))
+              and (:startDateFrom is null or p.startDate >= :startDateFrom)
+              and (:dateFrom is null or p.endDate >= :dateFrom)
+              and (:dateTo is null or p.startDate <= :dateTo)
             order by
               case when p.startDate <= :today and p.endDate >= :today then 0 else 1 end,
               p.endDate asc,
@@ -43,13 +35,13 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
     Page<Popup> searchPublicPopups(
             @Param("region") String region,
             @Param("category") String category,
-            @Param("status") String status,
             @Param("reservationRequired") Boolean reservationRequired,
             @Param("freeOnly") boolean freeOnly,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
+            @Param("openOnDate") LocalDate openOnDate,
+            @Param("startDateFrom") LocalDate startDateFrom,
+            @Param("dateFrom") LocalDate dateFrom,
+            @Param("dateTo") LocalDate dateTo,
             @Param("today") LocalDate today,
-            @Param("closingSoonDate") LocalDate closingSoonDate,
             Pageable pageable
     );
 

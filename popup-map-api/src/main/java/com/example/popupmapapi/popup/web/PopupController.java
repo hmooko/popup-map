@@ -1,6 +1,5 @@
 package com.example.popupmapapi.popup.web;
 
-import com.example.popupmapapi.popup.domain.PopupStatus;
 import com.example.popupmapapi.popup.service.PopupService;
 import com.example.popupmapapi.popup.web.dto.NearbyPopupResponse;
 import com.example.popupmapapi.popup.web.dto.PageResponse;
@@ -35,26 +34,28 @@ public class PopupController {
     private final PopupService popupService;
 
     @GetMapping
-    @Operation(summary = "팝업 목록 조회", description = "지역, 카테고리, 상태, 기간 등 조건으로 팝업 목록을 조회합니다.")
+    @Operation(summary = "팝업 목록 조회", description = "지역, 카테고리, 날짜 조건 등으로 팝업 목록을 조회합니다.")
     public PageResponse<PopupListItemResponse> searchPopups(
             @RequestParam(required = false) String region,
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) PopupStatus status,
             @RequestParam(required = false) Boolean reservationRequired,
             @RequestParam(defaultValue = "false") boolean freeOnly,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate openOnDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size
     ) {
         return popupService.searchPopups(
                 region,
                 category,
-                status,
                 reservationRequired,
                 freeOnly,
-                startDate,
-                endDate,
+                openOnDate,
+                startDateFrom,
+                dateFrom,
+                dateTo,
                 page,
                 size
         );

@@ -16,13 +16,10 @@ export type Category =
   | "LIFESTYLE"
   | "TECH";
 
-export type PopupStatus = "ONGOING" | "UPCOMING" | "CLOSING_SOON";
-
 export interface Popup {
   id: number;
   title: string;
   brandName: string;
-  status: PopupStatus;
   description: string;
   category: Category;
   region: Region;
@@ -43,10 +40,14 @@ export interface Popup {
   visible: boolean;
 }
 
+export type PopupDatePreset = "ALL" | "OPEN_TODAY" | "UPCOMING" | "CUSTOM_RANGE";
+
 export interface PopupFilters {
   region: Region | "ALL";
   category: Category | "ALL";
-  status: PopupStatus | "ALL";
+  datePreset: PopupDatePreset;
+  dateFrom: string;
+  dateTo: string;
   freeOnly: boolean;
   reservationFreeOnly: boolean;
 }

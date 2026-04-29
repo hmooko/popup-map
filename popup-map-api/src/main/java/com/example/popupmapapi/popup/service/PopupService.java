@@ -8,7 +8,6 @@ import com.example.popupmapapi.common.error.BusinessException;
 import com.example.popupmapapi.common.error.ErrorCode;
 import com.example.popupmapapi.popup.domain.Popup;
 import com.example.popupmapapi.popup.domain.PopupClassificationType;
-import com.example.popupmapapi.popup.domain.PopupStatus;
 import com.example.popupmapapi.popup.persistence.PopupRepository;
 import com.example.popupmapapi.popup.web.dto.NearbyPopupResponse;
 import com.example.popupmapapi.popup.web.dto.PageResponse;
@@ -29,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class PopupService {
 
-    private static final int CLOSING_SOON_DAYS = 7;
     private static final int MAX_MAP_POPUPS = 50;
 
     private final PopupRepository popupRepository;
@@ -39,15 +37,16 @@ public class PopupService {
     public PageResponse<PopupListItemResponse> searchPopups(
             String region,
             String category,
-            PopupStatus status,
             Boolean reservationRequired,
             boolean freeOnly,
-            LocalDate startDate,
-            LocalDate endDate,
+            LocalDate openOnDate,
+            LocalDate startDateFrom,
+            LocalDate dateFrom,
+            LocalDate dateTo,
             int page,
             int size
     ) {
-        validateDateRange(startDate, endDate);
+        validateDateRange(dateFrom, dateTo);
         String normalizedRegion = normalizeClassificationCode(region);
         String normalizedCategory = normalizeClassificationCode(category);
         LocalDate today = LocalDate.now();
@@ -55,15 +54,15 @@ public class PopupService {
         return PageResponse.from(popupRepository.searchPublicPopups(
                 normalizedRegion,
                 normalizedCategory,
-                status == null ? null : status.name(),
                 reservationRequired,
                 freeOnly,
-                startDate,
-                endDate,
+                openOnDate,
+                startDateFrom,
+                dateFrom,
+                dateTo,
                 today,
-                today.plusDays(CLOSING_SOON_DAYS),
                 pageable
-        ).map(popup -> PopupListItemResponse.from(popup, today)));
+        ).map(PopupListItemResponse::from));
     }
 
     public PopupDetailResponse getPopup(Long popupId) {
@@ -73,7 +72,7 @@ public class PopupService {
         if (popup.getEndDate().isBefore(today)) {
             throw new BusinessException(ErrorCode.NOT_FOUND, "팝업을 찾을 수 없습니다.");
         }
-        return PopupDetailResponse.from(popup, today);
+        return PopupDetailResponse.from(popup);
     }
 
     public List<PopupMapItemResponse> getMapPopups(

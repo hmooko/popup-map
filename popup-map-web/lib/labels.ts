@@ -1,4 +1,4 @@
-import type { Category, PopupStatus, Region } from "@/types/popup";
+import type { Category, Region } from "@/types/popup";
 
 export const regionLabels: Record<Region, string> = {
   SEONGSU: "성수",
@@ -18,10 +18,4 @@ export const categoryLabels: Record<Category, string> = {
   ART: "아트",
   LIFESTYLE: "라이프스타일",
   TECH: "테크"
-};
-
-export const statusLabels: Record<PopupStatus, string> = {
-  ONGOING: "오늘 운영 중",
-  UPCOMING: "오픈 예정",
-  CLOSING_SOON: "종료 임박"
 };

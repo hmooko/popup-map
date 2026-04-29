@@ -7,12 +7,18 @@ import { MapPanel } from "@/components/map/MapPanel";
 import { FilterBar } from "@/components/popup/FilterBar";
 import { PopupList } from "@/components/popup/PopupList";
 import { fetchMapPopupIds, fetchPopups, type MapBounds } from "@/lib/api";
+import { addDays, formatDateParam } from "@/lib/popupDates";
 import type { Popup, PopupFilters } from "@/types/popup";
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 
 const initialFilters: PopupFilters = {
   region: "ALL",
   category: "ALL",
-  status: "ALL",
+  datePreset: "ALL",
+  dateFrom: "",
+  dateTo: "",
   freeOnly: false,
   reservationFreeOnly: false
 };
@@ -62,7 +68,7 @@ function HomeContent() {
   useEffect(() => {
     let active = true;
 
-    fetchPopups()
+    fetchPopups(filters)
       .then((apiPopups) => {
         if (!active) {
           return;
@@ -85,7 +91,7 @@ function HomeContent() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [filters]);
 
   async function handleSearchInView(bounds: MapBounds) {
     setMapSearchLoading(true);
@@ -120,9 +126,6 @@ function HomeContent() {
 
     return popups
       .filter((popup) => popup.visible)
-      .filter((popup) => filters.region === "ALL" || popup.region === filters.region)
-      .filter((popup) => filters.category === "ALL" || popup.category === filters.category)
-      .filter((popup) => filters.status === "ALL" || popup.status === filters.status)
       .filter((popup) => !filters.freeOnly || popup.freeAdmission)
       .filter((popup) => !filters.reservationFreeOnly || !popup.reservationRequired)
       .filter((popup) => {
@@ -211,8 +214,47 @@ function HomeContent() {
       </header>
 
       <div className="mobile-quick-filters" aria-label="모바일 빠른 필터">
-        <button className="chip active" type="button">
+        <button
+          className={filters.datePreset === "ALL" ? "chip active" : "chip"}
+          type="button"
+          onClick={() =>
+            setFilters((current) => ({
+              ...current,
+              datePreset: "ALL",
+              dateFrom: "",
+              dateTo: ""
+            }))
+          }
+        >
+          전체 일정
+        </button>
+        <button
+          className={filters.datePreset === "OPEN_TODAY" ? "chip active-soft" : "chip"}
+          type="button"
+          onClick={() =>
+            setFilters((current) => ({
+              ...current,
+              datePreset: current.datePreset === "OPEN_TODAY" ? "ALL" : "OPEN_TODAY",
+              dateFrom: "",
+              dateTo: ""
+            }))
+          }
+        >
           오늘 운영
+        </button>
+        <button
+          className={filters.datePreset === "UPCOMING" ? "chip active-soft" : "chip"}
+          type="button"
+          onClick={() =>
+            setFilters((current) => ({
+              ...current,
+              datePreset: current.datePreset === "UPCOMING" ? "ALL" : "UPCOMING",
+              dateFrom: "",
+              dateTo: ""
+            }))
+          }
+        >
+          오픈 예정
         </button>
         <button
           className={filters.region === "SEONGSU" ? "chip active-soft" : "chip"}
@@ -237,6 +279,24 @@ function HomeContent() {
           }
         >
           무료
+        </button>
+        <button
+          className={filters.datePreset === "CUSTOM_RANGE" ? "chip active-soft" : "chip"}
+          type="button"
+          onClick={() =>
+            setFilters((current) => ({
+              ...current,
+              datePreset: current.datePreset === "CUSTOM_RANGE" ? "ALL" : "CUSTOM_RANGE",
+              dateFrom:
+                current.datePreset === "CUSTOM_RANGE" ? "" : formatDateParam(today),
+              dateTo:
+                current.datePreset === "CUSTOM_RANGE"
+                  ? ""
+                  : formatDateParam(addDays(today, 7))
+            }))
+          }
+        >
+          기간 지정
         </button>
       </div>
 

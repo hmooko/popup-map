@@ -1,7 +1,8 @@
 "use client";
 
 import { CalendarDays, MapPin } from "lucide-react";
-import { categoryLabels, regionLabels, statusLabels } from "@/lib/labels";
+import { categoryLabels, regionLabels } from "@/lib/labels";
+import { getPopupScheduleLabel } from "@/lib/popupDates";
 import type { Popup } from "@/types/popup";
 
 interface PopupCardProps {
@@ -38,7 +39,7 @@ export function PopupCard({ popup, selected, onSelect }: PopupCardProps) {
         </span>
         <span className="muted-line">
           <MapPin size={13} />
-          {statusLabels[popup.status]}
+          {getPopupScheduleLabel(popup)}
         </span>
       </div>
     </button>

@@ -1,8 +1,8 @@
 "use client";
 
 import { SlidersHorizontal } from "lucide-react";
-import { categoryLabels, regionLabels, statusLabels } from "@/lib/labels";
-import type { Category, PopupFilters, PopupStatus, Region } from "@/types/popup";
+import { categoryLabels, regionLabels } from "@/lib/labels";
+import type { Category, PopupDatePreset, PopupFilters, Region } from "@/types/popup";
 
 interface FilterBarProps {
   filters: PopupFilters;
@@ -20,7 +20,12 @@ const categories: Category[] = [
   "LIFESTYLE",
   "TECH"
 ];
-const statuses: PopupStatus[] = ["ONGOING", "CLOSING_SOON", "UPCOMING"];
+const datePresets: Array<{ value: PopupDatePreset; label: string }> = [
+  { value: "ALL", label: "전체" },
+  { value: "OPEN_TODAY", label: "오늘 운영" },
+  { value: "UPCOMING", label: "오픈 예정" },
+  { value: "CUSTOM_RANGE", label: "기간 지정" }
+];
 
 export function FilterBar({ filters, onChange }: FilterBarProps) {
   return (
@@ -66,22 +71,48 @@ export function FilterBar({ filters, onChange }: FilterBarProps) {
         </label>
 
         <label>
-          운영 상태
+          일정 기준
           <select
-            value={filters.status}
+            value={filters.datePreset}
             onChange={(event) =>
-              onChange({ ...filters, status: event.target.value as PopupFilters["status"] })
+              onChange({
+                ...filters,
+                datePreset: event.target.value as PopupDatePreset,
+                dateFrom: event.target.value === "CUSTOM_RANGE" ? filters.dateFrom : "",
+                dateTo: event.target.value === "CUSTOM_RANGE" ? filters.dateTo : ""
+              })
             }
           >
-            <option value="ALL">전체</option>
-            {statuses.map((status) => (
-              <option key={status} value={status}>
-                {statusLabels[status]}
+            {datePresets.map((preset) => (
+              <option key={preset.value} value={preset.value}>
+                {preset.label}
               </option>
             ))}
           </select>
         </label>
       </div>
+
+      {filters.datePreset === "CUSTOM_RANGE" ? (
+        <div className="filter-grid">
+          <label>
+            시작일
+            <input
+              type="date"
+              value={filters.dateFrom}
+              onChange={(event) => onChange({ ...filters, dateFrom: event.target.value })}
+            />
+          </label>
+
+          <label>
+            종료일
+            <input
+              type="date"
+              value={filters.dateTo}
+              onChange={(event) => onChange({ ...filters, dateTo: event.target.value })}
+            />
+          </label>
+        </div>
+      ) : null}
 
       <div className="toggle-row">
         <button
