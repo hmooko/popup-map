@@ -48,6 +48,16 @@ function HomeContent() {
   const [selectedPopup, setSelectedPopup] = useState<Popup | null>(null);
   const [apiState, setApiState] = useState<"loading" | "connected" | "error">("loading");
   const [mapSearchLoading, setMapSearchLoading] = useState(false);
+  const requestedPopupIdParam = searchParams.get("popupId");
+  const requestedPopupId =
+    requestedPopupIdParam === null ? null : Number.parseInt(requestedPopupIdParam, 10);
+  const requestedPopup = useMemo(
+    () =>
+      requestedPopupId !== null && Number.isInteger(requestedPopupId)
+        ? allPopups.find((popup) => popup.id === requestedPopupId) ?? null
+        : null,
+    [allPopups, requestedPopupId]
+  );
 
   useEffect(() => {
     let active = true;
@@ -96,8 +106,14 @@ function HomeContent() {
     }
 
     const idSet = new Set(visiblePopupIds);
-    return allPopups.filter((popup) => idSet.has(popup.id));
-  }, [allPopups, visiblePopupIds]);
+    const popupsInView = allPopups.filter((popup) => idSet.has(popup.id));
+
+    if (!requestedPopup || popupsInView.some((popup) => popup.id === requestedPopup.id)) {
+      return popupsInView;
+    }
+
+    return [requestedPopup, ...popupsInView];
+  }, [allPopups, requestedPopup, visiblePopupIds]);
 
   const filteredPopups = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -121,13 +137,7 @@ function HomeContent() {
       });
   }, [filters, popups, query]);
 
-  const requestedPopupIdParam = searchParams.get("popupId");
-  const requestedPopupId =
-    requestedPopupIdParam === null ? null : Number.parseInt(requestedPopupIdParam, 10);
-  const prioritizeSelectedPopupOnInit =
-    requestedPopupId !== null &&
-    Number.isInteger(requestedPopupId) &&
-    allPopups.some((popup) => popup.id === requestedPopupId);
+  const prioritizeSelectedPopupOnInit = requestedPopup !== null;
 
   useEffect(() => {
     if (filteredPopups.length === 0) {
