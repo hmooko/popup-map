@@ -124,6 +124,10 @@ function HomeContent() {
   const requestedPopupIdParam = searchParams.get("popupId");
   const requestedPopupId =
     requestedPopupIdParam === null ? null : Number.parseInt(requestedPopupIdParam, 10);
+  const prioritizeSelectedPopupOnInit =
+    requestedPopupId !== null &&
+    Number.isInteger(requestedPopupId) &&
+    allPopups.some((popup) => popup.id === requestedPopupId);
 
   useEffect(() => {
     if (filteredPopups.length === 0) {
@@ -239,6 +243,7 @@ function HomeContent() {
         <MapPanel
           popups={filteredPopups}
           selectedPopup={visibleSelectedPopup}
+          prioritizeSelectedPopupOnInit={prioritizeSelectedPopupOnInit}
           onSelect={handleSelect}
           onSearchInView={handleSearchInView}
           searchInViewLoading={mapSearchLoading}

@@ -10,6 +10,7 @@ import { SelectedPopupPanel } from "@/components/popup/SelectedPopupPanel";
 interface MapPanelProps {
   popups: Popup[];
   selectedPopup: Popup | null;
+  prioritizeSelectedPopupOnInit: boolean;
   onSelect: (popup: Popup) => void;
   onSearchInView: (bounds: MapBounds) => void;
   searchInViewLoading: boolean;
@@ -106,6 +107,7 @@ function loadKakaoMapSdk(appKey: string) {
 export function MapPanel({
   popups,
   selectedPopup,
+  prioritizeSelectedPopupOnInit,
   onSelect,
   onSearchInView,
   searchInViewLoading
@@ -239,12 +241,23 @@ export function MapPanel({
       return;
     }
 
+    if (prioritizeSelectedPopupOnInit && !selectedPopup) {
+      return;
+    }
+
     hasRequestedInitialBoundsRef.current = true;
     void (async () => {
-      await moveMapToCurrentLocation();
+      if (prioritizeSelectedPopupOnInit && selectedPopup && mapRef.current && window.kakao?.maps) {
+        mapRef.current.setCenter(
+          new window.kakao.maps.LatLng(selectedPopup.latitude, selectedPopup.longitude)
+        );
+      } else {
+        await moveMapToCurrentLocation();
+      }
+
       requestSearchInView();
     })();
-  }, [sdkState]);
+  }, [prioritizeSelectedPopupOnInit, sdkState, selectedPopup]);
 
   useEffect(() => {
     if (sdkState !== "ready" || !mapRef.current || !window.kakao?.maps) {
