@@ -93,7 +93,7 @@ export function FilterBar({ filters, onChange }: FilterBarProps) {
       </div>
 
       {filters.datePreset === "CUSTOM_RANGE" ? (
-        <div className="filter-grid">
+        <div className="filter-grid date-range-grid">
           <label>
             시작일
             <input

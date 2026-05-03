@@ -154,6 +154,11 @@ a {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.date-range-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 12px;
+}
+
 label {
   display: grid;
   gap: 6px;
@@ -1262,6 +1267,7 @@ input:disabled {
   }
 
   .filter-grid,
+  .date-range-grid,
   .login-form,
   .two-col,
   .search-actions {
