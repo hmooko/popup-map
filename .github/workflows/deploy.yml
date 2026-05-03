@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - popup-map-api/**
+      - popup-map-db/**
+      - .github/workflows/deploy.yml
   workflow_dispatch:
 
 concurrency:
@@ -22,14 +24,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            api:
+              - 'popup-map-api/**'
+              - '.github/workflows/deploy.yml'
+            db:
+              - 'popup-map-db/**'
+              - '.github/workflows/deploy.yml'
+
       - name: Set up JDK 21
+        if: steps.filter.outputs.api == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
+          cache: gradle
 
-      - name: Test
-        run: ./gradlew test
+      - name: Test and package API jar
+        if: steps.filter.outputs.api == 'true' || github.event_name == 'workflow_dispatch'
+        run: ./gradlew test bootJar --no-daemon
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -44,6 +61,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Push Docker Image
+        if: steps.filter.outputs.api == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/build-push-action@v5
         with:
           context: ./popup-map-api
@@ -54,6 +72,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and Push DB Image
+        if: steps.filter.outputs.db == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/build-push-action@v5
         with:
           context: ./popup-map-db
