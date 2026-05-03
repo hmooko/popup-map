@@ -16,7 +16,7 @@ today.setHours(0, 0, 0, 0);
 const initialFilters: PopupFilters = {
   region: "ALL",
   category: "ALL",
-  datePreset: "ALL",
+  datePreset: "OPEN_TODAY",
   dateFrom: "",
   dateTo: "",
   freeOnly: false,
