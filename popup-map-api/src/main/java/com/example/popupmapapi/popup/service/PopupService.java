@@ -56,9 +56,13 @@ public class PopupService {
                 normalizedCategory,
                 reservationRequired,
                 freeOnly,
+                openOnDate != null,
                 openOnDate,
+                startDateFrom != null,
                 startDateFrom,
+                dateFrom != null,
                 dateFrom,
+                dateTo != null,
                 dateTo,
                 today,
                 pageable

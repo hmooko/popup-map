@@ -23,10 +23,10 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
               and (:category is null or p.category = :category)
               and (:reservationRequired is null or p.reservationRequired = :reservationRequired)
               and (:freeOnly = false or p.freeAdmission = true)
-              and (:openOnDate is null or (p.startDate <= :openOnDate and p.endDate >= :openOnDate))
-              and (:startDateFrom is null or p.startDate >= :startDateFrom)
-              and (:dateFrom is null or p.endDate >= :dateFrom)
-              and (:dateTo is null or p.startDate <= :dateTo)
+              and (:applyOpenOnDate = false or (p.startDate <= :openOnDate and p.endDate >= :openOnDate))
+              and (:applyStartDateFrom = false or p.startDate >= :startDateFrom)
+              and (:applyDateFrom = false or p.endDate >= :dateFrom)
+              and (:applyDateTo = false or p.startDate <= :dateTo)
             order by
               case when p.startDate <= :today and p.endDate >= :today then 0 else 1 end,
               p.endDate asc,
@@ -37,9 +37,13 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
             @Param("category") String category,
             @Param("reservationRequired") Boolean reservationRequired,
             @Param("freeOnly") boolean freeOnly,
+            @Param("applyOpenOnDate") boolean applyOpenOnDate,
             @Param("openOnDate") LocalDate openOnDate,
+            @Param("applyStartDateFrom") boolean applyStartDateFrom,
             @Param("startDateFrom") LocalDate startDateFrom,
+            @Param("applyDateFrom") boolean applyDateFrom,
             @Param("dateFrom") LocalDate dateFrom,
+            @Param("applyDateTo") boolean applyDateTo,
             @Param("dateTo") LocalDate dateTo,
             @Param("today") LocalDate today,
             Pageable pageable
