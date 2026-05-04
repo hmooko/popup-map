@@ -107,6 +107,11 @@ a {
   cursor: pointer;
 }
 
+.primary-action.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .main-grid {
   display: grid;
   grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);

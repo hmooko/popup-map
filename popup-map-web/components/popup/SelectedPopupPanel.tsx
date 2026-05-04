@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, ChevronRight, Clock3, ExternalLink, MapPin, Ticket } from "lucide-react";
+import { CalendarDays, Clock3, ExternalLink, MapPin, Ticket } from "lucide-react";
 import { ShareLinkButton } from "@/components/common/ShareLinkButton";
 import { categoryLabels, regionLabels } from "@/lib/labels";
 import type { Popup } from "@/types/popup";
@@ -74,18 +74,22 @@ export function SelectedPopupPanel({ popup }: SelectedPopupPanelProps) {
         <span>주소</span>
         <strong>{fullAddress}</strong>
       </div>
-      {popup.officialUrl ? (
-        <a
-          className="primary-action"
-          href={popup.officialUrl}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <Ticket size={16} />
-          상세 보기
-          <ExternalLink size={15} />
-        </a>
-      ) : null}
+      <a
+        className={popup.officialUrl ? "primary-action" : "primary-action disabled"}
+        href={popup.officialUrl ?? undefined}
+        target={popup.officialUrl ? "_blank" : undefined}
+        rel={popup.officialUrl ? "noreferrer" : undefined}
+        aria-disabled={popup.officialUrl ? undefined : true}
+        onClick={(event) => {
+          if (!popup.officialUrl) {
+            event.preventDefault();
+          }
+        }}
+      >
+        <Ticket size={16} />
+        상세 보기
+        <ExternalLink size={15} />
+      </a>
     </article>
   );
 }

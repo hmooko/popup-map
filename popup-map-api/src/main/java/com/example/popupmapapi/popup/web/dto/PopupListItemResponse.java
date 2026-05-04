@@ -20,6 +20,7 @@ public record PopupListItemResponse(
         boolean reservationRequired,
         boolean freeAdmission,
         Integer entryFee,
+        String officialUrl,
         String thumbnailUrl
 ) {
     public static PopupListItemResponse from(Popup popup) {
@@ -39,6 +40,7 @@ public record PopupListItemResponse(
                 popup.isReservationRequired(),
                 popup.isFreeAdmission(),
                 popup.getEntryFee(),
+                popup.getOfficialUrl(),
                 popup.getThumbnailUrl()
         );
     }
